@@ -19,3 +19,11 @@
 - 未验证成功的 API 不标注为“已可播放”；建议在 AVBox 中逐个测试。
 - 成人内容订阅与普通订阅完全分离，请按需自行添加。
 - 本次仅在审计分支新增文件，不修改 master、不创建 PR、不发布 Release。
+
+## 点播无内容问题的排查版本（2026-11-19）
+
+- 新增 `vod-verified.json`：这是最小 AVBox 原生点播配置，仅保留一个 type=1 的 MacCMS API 站点，避免原始 135 站点配置中大量 type=3 爬虫/JAR/JS 依赖干扰首次验证。
+- 默认站点使用 `https://api.ukuapi.com/api.php/provide/vod/`。2026-11-19 对其 `?ac=list` 请求观察到接口返回 JSON、分类列表及影视记录；这证明接口列表端点当时有响应，不代表 AVBox 真机详情/播放已验证。
+- AVBox 的 `SortLoader` 对 type=1 调用 API 并以 JSON 解析分类；type=3 则需要成功加载对应 Spider。原先默认首站点是 type=3 的「豆瓣」，可能因为 Spider 或上游数据问题导致首页无内容。
+- 请先移除旧的普通点播订阅，再添加下方新链接，确保切换到新站点 key：
+  `https://gh-proxy.com/https://raw.githubusercontent.com/LDeom/tvbox/audit/repair-sources-2026-11/avbox/vod-verified.json`
