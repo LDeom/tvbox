@@ -291,3 +291,9 @@ Additional endpoints found in `dianshi.json` were checked without querying adult
 - 原 `avbox/0825-avbox.json` 首个默认站点为 `豆瓣`（type=3、`searchable=0`），而其余 128 个站点中绝大多数也是 type=3 爬虫；配置解析成功不等于 Spider 可用，可能造成首页无分类/影视。
 - 新增 `avbox/vod-verified.json` 最小排障配置，仅保留一个 type=1 API 站点。2026-11-19 对其 `?ac=list` 观察到接口返回 JSON、分类及影视记录；未完成 AVBox 真机详情和播放验证。
 - 当前仅把这个接口列为「列表接口有响应」，不宣称已验证播放。需要用户在 AVBox 中重新添加该新地址并反馈首页是否出现分类。
+
+## GH-Proxy 域名调整（2026-11-19）
+
+- GH-Proxy 官网公告显示业务域名已统一为 `gh-proxy.org`，因此 AVBox 配置文件及 README 中原 `gh-proxy.com` 的仓库文件代理链接已更新为 `gh-proxy.org`。
+- 当前排障订阅地址请使用 `https://gh-proxy.org/https://raw.githubusercontent.com/LDeom/tvbox/audit/repair-sources-2026-11/avbox/vod-verified.json`。
+- 这次更新只调整 GitHub 文件代理域名；尚不能替代用户设备上的实际下载验证。
