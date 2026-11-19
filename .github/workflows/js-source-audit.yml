@@ -1,0 +1,39 @@
+name: JavaScript source audit
+
+on:
+  push:
+    branches:
+      - audit/repair-sources-2026-11
+    paths:
+      - "audit/js_source_audit.py"
+      - ".github/workflows/js-source-audit.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout audit branch
+        uses: actions/checkout@v4
+        with:
+          ref: audit/repair-sources-2026-11
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install HTTP client
+        run: python -m pip install --disable-pip-version-check requests
+      - name: Check JS syntax and literal endpoints
+        run: python audit/js_source_audit.py
+      - name: Upload JS source audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: js-source-audit
+          path: js-source-audit-report.json
+          if-no-files-found: warn
+          retention-days: 14
