@@ -313,3 +313,32 @@ All four updated files were parsed successfully as JSON after the rewrite. A fol
 
 The full repository still requires per-entry runtime checks and rights-aware classification. No source was deleted based solely on a static or transient network failure. No master-branch changes, pull request, or Release were made.
 
+## Playlist format and runtime-dependency pass (2026-11-19)
+
+The following playlist files were fetched and inspected for line counts, URL counts, duplicate URLs, and representative line structure. These are static counts, not live HTTP or playback checks:
+
+| File | Non-empty lines | URL occurrences | Unique URL strings | Findings |
+|---|---:|---:|---:|---|
+| `list.txt` | 205 | 202 | 202 | General TXT playlist structure |
+| `list.m3u` | 1,649 | 860 | 851 | M3U playlist; duplicate URLs exist |
+| `ITV.txt` | 647 | 637 | 637 | TXT channel list |
+| `tvboxtv.txt` | 1,400 | 1,391 | 1,391 | Contains IPv6 literal stream URLs |
+| `tvlive.txt` | 1,430 | 1,420 | 1,419 | Includes 33 YouTube entries routed through `127.0.0.1:9978/proxy` |
+| `listx.txt` | 1,304 | 1,296 | 1,296 | Separate 18+ playlist; keep classified separately |
+| `livex.m3u` | 29,303 | 14,651 | 14,651 | Separate 18+ M3U playlist; keep classified separately |
+| `radio.m3u` | 2,957 | 1,478 | 1,456 | Duplicate stream URLs exist |
+| `radio.txt` | 1,484 | 1,478 | 1,456 | Same unique stream URL set as `radio.m3u` |
+| `yo21.txt` | 38 | 38 | 37 | Every URL depends on `127.0.0.1:9978/proxy` and a SOCKS proxy at `127.0.0.1:10172` |
+
+### Confirmed local-service dependencies
+
+- `tvlive.txt` contains 33 YouTube proxy playlist entries using `127.0.0.1:9978/proxy?do=yt`.
+- `yo21.txt` contains 38 URL entries, all routed through the local proxy on port 9978 and configured to use the local SOCKS proxy on port 10172.
+- These entries will not work as direct remote URLs unless the target player has the required local proxy and SOCKS services running. Replacing these localhost URLs with a CDN URL would be incorrect; the service itself must be installed/configured or the entries excluded from a profile that does not provide it.
+
+### Additional observations
+
+- The `tvboxtv.txt` and `tvlive.txt` samples include IPv6 literal stream addresses. Devices or networks without IPv6 connectivity may fail to play those entries even though the playlist file downloads successfully.
+- The 18+ files `listx.txt` and `livex.m3u` remain separate from ordinary playlists. Their URL reachability and age/access controls were not tested in this static pass.
+- Playlist URL counts do not imply that the endpoints are live, authorized, region-accessible, or playable. No stream was removed on the basis of this static pass.
+
