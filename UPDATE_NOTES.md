@@ -224,3 +224,13 @@
 本轮尝试请求代表性 HLS/广播地址，网页检查环境无法取得可用播放清单。因此**没有把任何频道标记为已播放，也没有因检查工具失败而删除频道**。下一步需要在目标设备上测试 IPv4/IPv6 连通性、本机 9978 代理、HLS 清单和分片。
 
 详细记录见 [SOURCE_AUDIT.md](./SOURCE_AUDIT.md) 的“普通直播列表第三轮静态检查”章节。
+
+## 2026-11-19 AVBox 订阅适配
+
+- 新增 `avbox/0825-avbox.json`（普通点播，135 个站点）。
+- 新增 `avbox/live.json`（普通直播，5 组列表）。
+- 新增 `avbox/99188-avbox.json`（成人点播，64 个站点）。
+- 新增 `avbox/adult-live.json`（成人直播，4 组列表）。
+- 新增 `avbox/README.md`。
+- 仓库内相对资源引用已替换为 `https://gh-proxy.com/https://raw.githubusercontent.com/LDeom/tvbox/audit/repair-sources-2026-11/...`。
+- 尚未完成所有第三方 API 与频道流的真实播放测试；订阅可解析不代表每条源均可播放。
