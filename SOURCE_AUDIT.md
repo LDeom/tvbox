@@ -484,3 +484,31 @@ This pass checks reference existence and path conventions, not JavaScript execut
 - 量子列表接口本轮再次成功返回 JSON：`code=1`、`list` 非空，包含 `vod_id`、`vod_name`、`vod_play_from` 等字段，响应声明 `total=164473`。这仅确认列表接口仍有数据；本轮拿到的列表字段未包含 `vod_play_url`，播放地址必须通过详情接口获取。
 - 本轮未能验证搜索命中、详情 `vod_play_url`、播放源URL响应或媒体分片，因此完整链路状态仍为“未验证”。下一步需使用可直接发起任意 HTTP GET 的受控客户端，或在 AVBox/TVBox 运行环境中执行相同查询；对播放地址只做安全的响应头/首段检查，不下载整部媒体。
 - 本轮未修改源配置、未删除任何源、未构建 APK、未触及 master。
+
+
+## 点播 API 有效影视数据复测（2026-11-19）
+
+本轮使用可读取公开 HTTP 响应的检测通道，对配置中直接提供采集数据的 API 进行复测。判定标准为响应体中存在可解析的采集 JSON、成功标志（如 `code=1`）、非空 `list`，且记录包含影视名称/ID/播放来源等字段；仅 HTTP 成功或站点可打开不算有效。
+
+### 本轮确认返回非空影视列表
+
+| API | 当前响应 | 数据情况 | 结论 |
+|---|---|---|---|
+| 量子 `cj.lziapi.com` | JSON | `code=1`，`total=164473`，列表非空；记录含 `vod_id`、`vod_name`、`vod_play_from` | 列表接口有效 |
+| 暴风 `bfzyapi.com` | JSON | `code=1`，`total=173048`，列表非空；记录含影视名称、ID和播放来源 | 列表接口有效 |
+| 索尼 `suoniapi.com` | 响应头标为 text/html，但响应体实际为 JSON | `code=1`，`total=149351`，列表非空 | 内容有效；响应 Content-Type 不规范，播放器兼容性需验证 |
+
+证据 URL：
+- `https://cj.lziapi.com/api.php/provide/vod/?ac=list`
+- `https://bfzyapi.com/api.php/provide/vod/?ac=list`
+- `https://suoniapi.com/api.php/provide/vod/?ac=list`
+
+### 其他观察与限制
+
+- 尤酷 API 曾在此前检测中通过旧域名跳转至 `api.ukuapi88.com` 并返回数据；本轮重定向目标响应未呈现可解析 JSON，故记为“历史通过、本轮未复核通过”，不直接判死。
+- 155、jkun、森林、滴滴等成人配置中的采集 API，本轮检测通道返回不可访问/内部错误；这属于检测通道无法取数，不作为源失效证据。
+- 对量子详情（`ac=detail&ids=...`）及关键词搜索（`wd=...`）的请求被检测通道拦截，尚未拿到详情 JSON、`vod_play_url` 或播放地址。当前仅能确认列表接口，不可标记为完整可播放。
+- 列表数据里的 `vod_play_from` 只是播放线路标识，不是实际媒体地址。尚未验证播放地址、解析器及本地 `127.0.0.1:10079` 服务。
+- 同一 API 在多份配置中重复出现，统计可用源时应按 API URL 去重，不能把配置条目数当成独立源数。
+
+本轮没有删除或改写源条目，没有更改 master，没有构建 APK。检测结果属于 2026-11-19 的时间点快照，源状态可能变化。
