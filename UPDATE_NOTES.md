@@ -318,3 +318,11 @@ This pass checks reference existence and path conventions, not JavaScript execut
 - The workflow is configured to trigger on pushes to `master` affecting `tools/**` (as well as manual/scheduled runs). Its final `git-push` job executes `git push -f origin master`. This force-push behavior can overwrite concurrent master history; it is an operational risk worth reviewing. I did not alter the workflow or run it.
 - This remains a dependency spot-check of selected Python files, not a full compile/import test of all 62 Python files. No plugin execution or network endpoint health was claimed.
 
+
+
+## 2026-11-19 — 自动更新工作流推送安全修复
+
+- `.github/workflows/run.yml` 原先使用 `git push -f origin master`，存在强制覆盖 master 历史的风险。
+- 已改为 `git push origin "HEAD:${GITHUB_REF_NAME}"`，推送当前触发分支并取消强制推送；发生非快进冲突时会失败而不是覆盖远端历史。
+- 未运行工作流，未触发外部源抓取，未构建 APK，未发布 Release，也未修改 master。
+- Python 全量静态 import 盘点此前覆盖 62 个文件；`pyquery`、`cryptography` 是否由目标播放器内置仍待设备端验证，没有擅自增加 pip 安装步骤。
