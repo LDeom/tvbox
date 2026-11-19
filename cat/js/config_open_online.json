@@ -65,7 +65,7 @@
 {"key":"nkvod_open","name":"影视 | 耐看","type":3,"api":"nkvod_open.js"},
 
 {"key":"52ju_open","name":"影视 | 我爱剧","type":3,"api":"52ju_open.js"},
-{"key":"dyxs_open","name":"影视 | 电影先生","type":3,"api":"dyxs_openn.js"},
+{"key":"dyxs_open","name":"影视 | 电影先生","type":3,"api":"dyxs_open.js"},
 {"key":"lz_open","name":"影视 | 量子","type":3,"api":"lz_open.js"},
 {"key":"mfk_open","name":"影视 | 免费看","type":3,"api":"mfk_open.js"},
 {"key":"mgys_open","name":"影视 | 蘑菇","type":3,"api":"mgys_open.js"},
