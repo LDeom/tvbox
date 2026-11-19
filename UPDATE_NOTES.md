@@ -362,3 +362,9 @@ This pass checks reference existence and path conventions, not JavaScript execut
 - 在公开配置中发现非占位 B站 Cookie、阿里云盘 Token、夸克 Cookie，涉及 `cat/js/` 与 `cat/tjs/` 的普通配置及 TV 配置。
 - `xiaosa/api.json`、`jsm.json`、`dianshi.json` 还包含固定签名样式字段，尚未确认是否属于个人凭据，暂不改动。
 - 敏感值未写入本日志。本轮未清空配置字段，以免破坏用户依赖；建议所有者撤销/轮换凭据。修改当前文件无法自动清除 Git 历史或外部缓存。
+
+
+## 2026-11-19 — 公开配置凭据脱敏
+
+- 经用户确认，四份普通配置中的个人 Cookie / 网盘 Token 已替换为“请填写自己的…”占位值，字段结构与源条目保留。
+- 需要个人登录态的功能需由用户自行填写凭据；旧凭据仍可能存在于 Git 历史、fork、下载副本或 CDN 缓存，建议撤销/轮换。
