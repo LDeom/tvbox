@@ -7,6 +7,7 @@ on:
       - audit/repair-sources-2026-11
     paths:
       - ".github/workflows/vod-api-audit.yml"
+      - "audit/vod_api_audit.py"
 
 permissions:
   contents: read
