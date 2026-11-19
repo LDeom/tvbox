@@ -1,9 +1,12 @@
 #!/usr/bin/env python3
 """Read-only JS source syntax and literal endpoint smoke audit."""
+import base64
+import gzip
 import json
 import os
 import re
 import subprocess
+import tempfile
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timezone
 from urllib.parse import urlparse
@@ -20,7 +23,7 @@ SKIP_NAMES = {
     "jinja.js", "jinja.min.js", "mod.js", "app.js", "build.js",
 }
 ADULT_RE = re.compile(
-    r"(^|/)(adult[^/]*|[^/]*18[^/]*|missav[^/]*|jable[^/]*|sehuatang[^/]*)(/|$)",
+    r"(^|/)(adult[^/]*|[^/]*18[^/]*|missav[^/]*|jable[^/]*|sehuatang[^/]*|asianx[^/]*)(/|$)",
     re.I,
 )
 URL_RE = re.compile(r"https?://[^\s\"'<>\\]+", re.I)
@@ -42,32 +45,58 @@ def excluded(rel):
     return name in SKIP_NAMES or name.endswith(".min.js")
 
 
+def read_source(path):
+    raw = open(path, "rb").read()
+    text = raw.decode("utf-8-sig", errors="replace").strip()
+    if text.startswith("H4sIA"):
+        try:
+            decoded = gzip.decompress(base64.b64decode(text)).decode("utf-8", errors="replace")
+            return decoded, "gzip_base64"
+        except Exception:
+            pass
+    if text.startswith("**"):
+        try:
+            decoded = base64.b64decode(text[2:]).decode("utf-8", errors="replace")
+            return decoded, "base64"
+        except Exception:
+            pass
+    return text, "plain"
+
+
 def check_js(path):
+    source, encoding = read_source(path)
+    temp_path = None
     try:
+        with tempfile.NamedTemporaryFile("w", suffix=".js", encoding="utf-8", delete=False) as f:
+            f.write(source)
+            temp_path = f.name
         p = subprocess.run(
-            ["node", "--check", path],
+            ["node", "--check", temp_path],
             capture_output=True, text=True, timeout=12
         )
         return {
             "syntax": "ok" if p.returncode == 0 else "syntax_error",
+            "encoding": encoding,
             "error": (p.stderr or p.stdout).strip()[:500] if p.returncode else ""
         }
     except FileNotFoundError:
-        return {"syntax": "node_unavailable", "error": "node executable not found"}
+        return {"syntax": "node_unavailable", "encoding": encoding, "error": "node executable not found"}
     except subprocess.TimeoutExpired:
-        return {"syntax": "check_timeout", "error": "node --check exceeded 12 seconds"}
+        return {"syntax": "check_timeout", "encoding": encoding, "error": "node --check exceeded 12 seconds"}
+    finally:
+        if temp_path and os.path.exists(temp_path):
+            os.unlink(temp_path)
 
 
 def extract_urls(path):
     try:
-        with open(path, "r", encoding="utf-8-sig", errors="replace") as f:
-            data = f.read()
+        data, _ = read_source(path)
     except Exception:
         return []
     found = []
     for raw in URL_RE.findall(data):
         url = raw.rstrip("),];}")
-        if any(x in url for x in ("{", "}", "\${", "&&")):
+        if any(x in url for x in ("{", "}", "&&")):
             continue
         host = urlparse(url).netloc
         if host and url not in found:
