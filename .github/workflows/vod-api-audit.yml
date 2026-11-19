@@ -8,6 +8,7 @@ on:
     paths:
       - ".github/workflows/vod-api-audit.yml"
       - "audit/vod_api_audit.py"
+      - "audit/repository_source_audit.py"
 
 permissions:
   contents: read
@@ -15,7 +16,7 @@ permissions:
 jobs:
   audit:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 30
     steps:
       - name: Checkout audit branch
         uses: actions/checkout@v4
@@ -32,6 +33,18 @@ jobs:
 
       - name: Test ordinary VOD list, search, detail and media URL
         run: python audit/vod_api_audit.py
+
+      - name: Scan repository source/config files
+        run: python audit/repository_source_audit.py
+
+      - name: Upload repository source audit report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: repository-source-audit
+          path: repository-source-audit-report.json
+          if-no-files-found: warn
+          retention-days: 14
 
       - name: Upload JSON audit report
         if: always()
