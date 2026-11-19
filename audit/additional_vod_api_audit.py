@@ -13,6 +13,7 @@ ROOT = os.getcwd()
 EXTS = {".json", ".txt", ".js"}
 SKIP_DIRS = {".git", ".github", "node_modules", "cat/18_dist", "cat/dist", "cat/js/lib", "cat/tjs/lib"}
 ADULT_RE = re.compile(r"(^|/)(adult[^/]*|[^/]*18[^/]*|missav[^/]*|jable[^/]*|sehuatang[^/]*|asianx[^/]*)(/|$)", re.I)
+ADULT_HOST_RE = re.compile(r"(sexnguon|91md|missav|jable|sehuatang|asianx|porn|adult)", re.I)
 URL_RE = re.compile(r"https?://[^\s\"'<>\\]+", re.I)
 API_RE = re.compile(r"/(?:api\.php/)?provide/vod/?$", re.I)
 KNOWN_TESTED = {
@@ -52,7 +53,7 @@ def discover():
             for raw in URL_RE.findall(text):
                 url = raw.rstrip("),];}")
                 p = urlparse(url)
-                if not p.netloc or not API_RE.search(p.path):
+                if not p.netloc or ADULT_HOST_RE.search(p.netloc) or not API_RE.search(p.path):
                     continue
                 base_url = urlunparse((p.scheme, p.netloc, p.path.rstrip("/") + "/", "", "", ""))
                 if base_url not in KNOWN_TESTED:
@@ -84,7 +85,24 @@ def records(payload):
     return []
 
 
+def playable_urls(play):
+    found = []
+    if not isinstance(play, str):
+        return found
+    for line in play.split("$$$"):
+        for episode in line.split("#"):
+            candidate = episode.split("$", 1)[1] if "$" in episode else episode
+            for url in URL_RE.findall(candidate):
+                url = url.rstrip("),];}")
+                if url not in found:
+                    found.append(url)
+    return found
+
+
 def probe_media(url):
+    parsed = urlparse(url)
+    if parsed.path.lower().endswith((".html", ".htm")) or parsed.netloc.lower().endswith(("iqiyi.com", "youku.com", "mgtv.com", "qq.com")):
+        return {"status": "external_video_page_not_direct_media", "host": parsed.netloc}
     try:
         r = SESSION.get(url, headers={"Range": "bytes=0-0"}, stream=True, timeout=TIMEOUT, allow_redirects=True)
         out = {"status_code": r.status_code, "final_host": urlparse(r.url).netloc, "content_type": r.headers.get("Content-Type", "")}
@@ -106,7 +124,7 @@ def test_one(item):
     endpoint = item["endpoint"]
     out = {"endpoint": endpoint, "referenced_by": item["files"]}
     listing = get_json(endpoint, {"ac": "list", "pg": 1})
-    if "data" not in listing:
+    if "data" not in listing or not isinstance(listing.get("data"), dict):
         out["list"] = {k: v for k, v in listing.items() if k != "data"}
         return out
     rows = records(listing["data"])
@@ -115,13 +133,13 @@ def test_one(item):
         "final_url": listing["final_url"],
         "content_type": listing["content_type"],
         "count": len(rows),
-        "total": (listing["data"].get("total") if isinstance(listing["data"], dict) else None),
+        "total": listing["data"].get("total"),
         "status": "nonempty" if rows else "empty"
     }
     search = get_json(endpoint, {"ac": "list", "wd": "流浪地球", "pg": 1})
-    srows = records(search.get("data")) if "data" in search else []
+    srows = records(search.get("data")) if isinstance(search.get("data"), dict) else []
     out["search"] = {
-        "status": "matched" if srows else ("no_match" if "data" in search else "request_or_parse_error"),
+        "status": "matched" if srows else ("no_match" if isinstance(search.get("data"), dict) else "request_or_parse_error"),
         "count": len(srows),
         "error": search.get("error")
     }
@@ -134,15 +152,9 @@ def test_one(item):
         out["detail"] = {"status": "no_record_id"}
         return out
     detail = get_json(endpoint, {"ac": "detail", "ids": str(vid)})
-    drows = records(detail.get("data")) if "data" in detail else []
+    drows = records(detail.get("data")) if isinstance(detail.get("data"), dict) else []
     record = drows[0] if drows and isinstance(drows[0], dict) else {}
-    play = record.get("vod_play_url", "")
-    media = []
-    if isinstance(play, str):
-        for u in URL_RE.findall(play):
-            u = u.rstrip("),];}")
-            if u not in media:
-                media.append(u)
+    media = playable_urls(record.get("vod_play_url", ""))
     out["detail"] = {
         "status_code": detail.get("status_code"),
         "status": "has_play_url" if media else ("empty_play_url" if record else "request_or_parse_error"),
@@ -164,7 +176,7 @@ def main():
     results.sort(key=lambda x: x["endpoint"])
     report = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "scope": "additional non-adult MacCMS-style APIs discovered in repository text/config/JS files; excludes previously tested five APIs",
+        "scope": "additional non-adult MacCMS-style APIs; excludes previously tested five APIs and adult-indicator hosts",
         "discovered_count": len(found),
         "tested_count": len(results),
         "results": results,
@@ -174,7 +186,8 @@ def main():
             "detail_has_play_url": sum(x.get("detail", {}).get("status") == "has_play_url" for x in results),
             "media_http_ok": sum(p.get("status") == "http_ok" for x in results for p in x.get("media_probes", [])),
             "media_restricted": sum(p.get("status") == "access_restricted" for x in results for p in x.get("media_probes", [])),
-            "media_not_found": sum(p.get("status") == "not_found" for x in results for p in x.get("media_probes", []))
+            "media_not_found": sum(p.get("status") == "not_found" for x in results for p in x.get("media_probes", [])),
+            "external_video_pages": sum(p.get("status") == "external_video_page_not_direct_media" for x in results for p in x.get("media_probes", []))
         }
     }
     with open("additional-vod-api-audit-report.json", "w", encoding="utf-8") as f:
