@@ -196,3 +196,21 @@ The following endpoints could not be retrieved by the web inspection service in 
 - `https://leshiapi.com/api.php/provide/vod`
 
 An inspection-service retrieval failure is not proof that a provider is offline. These results establish only that the first four API endpoints responded with listing-shaped data at inspection time; they do not verify detail queries, playback URL extraction, media reachability, region access, or user authorization. No provider was deleted based on this limited check.
+
+## Additional ordinary VOD API spot checks (2026-11-19)
+
+Additional endpoints found in `dianshi.json` were checked without querying adult-oriented sources.
+
+**Returned listing-shaped JSON during this inspection:**
+- `https://api.ukuapi.com/api.php/provide/vod/?ac=list` — redirected to `api.ukuapi88.com` and returned a CatVod-style list.
+- `https://api.apibdzy.com/api.php/provide/vod?ac=list` — returned a CatVod-style list.
+
+**Could not be verified by the web inspection service:**
+- `http://caiji.dyttzyapi.com/api.php/provide/vod` — HTTP 403 at inspection time.
+- `http://tyyszy.com/api.php/provide/vod`
+- `https://wolongzyw.com/api.php/provide/vod/?ac=list`
+- `https://jszyapi.com/api.php/provide/vod/?ac=list`
+- `https://zy.jinchancaiji.com/api.php/provide/vod`
+- `https://vs.okcdn100.top/api.php/provide/vod`
+
+403 or inspection-service inaccessibility is not enough to label a source dead; app user-agent, geographic routing, or upstream protection may differ. No source was removed. As with the earlier checks, receiving a listing response is not playback validation.
