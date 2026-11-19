@@ -422,3 +422,11 @@ This pass checks reference existence and path conventions, not JavaScript execut
 - 尤酷、索尼详情请求和尤酷搜索请求被当前检测通道拒绝，未获得响应正文；不据此判源失效。
 - 当前普通点播列表 API 已确认 5 个唯一源：量子、暴风、索尼、百度、尤酷。完整搜索、详情和媒体播放均未全部通过。
 - 本轮只检查普通点播；不改配置、不删除源、不改 master、不构建 APK。
+
+
+## 普通点播详情检测自动化入口
+
+- 新增 `audit/vod_api_audit.py` 和 GitHub Actions 工作流 `.github/workflows/vod-api-audit.yml`，用于对量子、暴风、索尼、百度、尤酷五个普通点播源执行列表、搜索、详情和首条媒体 URL Range 检查。
+- 工作流支持手动运行，产出 `ordinary-vod-api-audit` JSON artifact；只读权限，不改仓库配置。当前尚未运行，报告未生成。
+- 本轮运行环境无法直接访问外部 API，且当前 GitHub 工具未提供 workflow_dispatch 写操作，因此需要在 Actions 页面手动启动。不得将工具已就绪等同于源链路验证通过。
+- 仅修改审计分支，不涉及 18+ 源、master 或 APK 构建。
