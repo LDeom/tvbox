@@ -43,3 +43,19 @@ The repository also contains separate adult-content playlists/configuration. The
 ## Status
 
 This is a preliminary static audit, not a certification that every source works. No changes have been made to `master`; all repairs are isolated on the working branch for review.
+
+## Follow-up checks (2026-11-19)
+
+Additional configuration files checked after the first report:
+
+- `jsm.json`: 40 local file references scanned; no missing local targets found.
+- `0821.json`: 36 references; no missing local targets found.
+- `0826.json`: 1 reference; no missing local targets found.
+- `0827.json`: 10 references; no missing local targets found.
+- `9918.json` and `99188.json`: 21 references each; no missing local targets found.
+- `fty.json`: 5 references; no missing local targets found. Its percent-encoded path resolves to the existing FTY script.
+- `cat/tjs/open_config.json`: 34 references; no missing local targets found.
+- `xiaosa/api.json`: 8 references; no missing local targets found. Its `./spider.jar` correctly resolves to `xiaosa/spider.jar`.
+- `XYQ.json`: the missing-looking `玩偶妹妹.json` reference is in a commented-out source entry, not an active dependency.
+
+These checks cover the principal top-level configurations and selected nested configuration groups, not every one of the repository's JSON files. Strict JSON parsing also rejects some source files that use comments/trailing commas (JSON5-like syntax); those were not rewritten because the consuming parser's exact behavior must be confirmed first.
