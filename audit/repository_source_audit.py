@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from urllib.parse import urlparse
 
 import requests
+import json5
 
 ROOT = os.getcwd()
 SKIP_PARTS = {".git", ".github", "node_modules", "cat/js", "cat/dist", "cat/18_dist"}
@@ -56,13 +57,19 @@ def inspect_file(path):
         with open(path, "r", encoding="utf-8-sig") as f:
             text = f.read()
     except UnicodeDecodeError:
-        try:
-            with open(path, "r", encoding="gb18030") as f:
-                text = f.read()
-            result["encoding"] = "gb18030"
-        except Exception as exc:
+        decoded = False
+        for encoding in ("gb18030", "gbk", "utf-16"):
+            try:
+                with open(path, "r", encoding=encoding) as f:
+                    text = f.read()
+                result["encoding"] = encoding
+                decoded = True
+                break
+            except Exception:
+                pass
+        if not decoded:
             result["parse"] = "decode_error"
-            result["error"] = str(exc)[:180]
+            result["error"] = "unsupported or binary text encoding"
             return result
     except Exception as exc:
         result["parse"] = "read_error"
@@ -75,10 +82,16 @@ def inspect_file(path):
             data = json.loads(text)
             result["parse"] = "valid_json"
             urls_in(data, found)
-        except Exception as exc:
-            result["parse"] = "invalid_json"
-            result["error"] = str(exc)[:180]
-            found = URL_RE.findall(text)
+        except Exception as strict_exc:
+            try:
+                data = json5.loads(text)
+                result["parse"] = "valid_json5"
+                urls_in(data, found)
+            except Exception as relaxed_exc:
+                result["parse"] = "invalid_json_or_json5"
+                result["error"] = str(relaxed_exc)[:180]
+                result["strict_json_error"] = str(strict_exc)[:120]
+                found = URL_RE.findall(text)
     else:
         result["parse"] = "readable_text"
         # Prefer actual playlist/line URLs; exclude URLs embedded in comments.
@@ -147,7 +160,8 @@ def main():
     report["probe_count"] = total
     report["summary"] = {
         "valid_json": sum(1 for x in report["results"] if x["parse"] == "valid_json"),
-        "invalid_json": sum(1 for x in report["results"] if x["parse"] == "invalid_json"),
+        "valid_json5": sum(1 for x in report["results"] if x["parse"] == "valid_json5"),
+        "invalid_json_or_json5": sum(1 for x in report["results"] if x["parse"] == "invalid_json_or_json5"),
         "decode_or_read_errors": sum(1 for x in report["results"] if x["parse"] in ("decode_error", "read_error")),
         "files_with_urls": sum(1 for x in report["results"] if x["url_count"]),
         "http_ok": sum(1 for x in report["results"] for p in x["probes"] if p["status"] == "http_ok"),
