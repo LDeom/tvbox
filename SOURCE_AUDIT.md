@@ -119,3 +119,19 @@ All 62 repository `.py` files were read and scanned for top-level import stateme
 ## JavaScript sampling update
 
 Additional representative live/provider scripts under `FTY/` and `js/` were inspected. The sampled scripts did not expose obvious Node-style `require()` imports or relative file references. Several use runtime-provided networking APIs (for example `fetch`); compatibility depends on the target TVBox JavaScript engine. This remains a sample, not a full 696-file runtime audit.
+
+## Duplicate-content inventory (Git blob SHA comparison, 2026-11-19)
+
+Identical blob hashes were grouped; this identifies byte-for-byte copies, not necessarily obsolete files.
+
+| Extension | Files | Unique contents | Duplicate groups |
+|---|---:|---:|---:|
+| JS | 696 | 644 | 46 |
+| Python | 62 | 46 | 10 |
+| JSON | 257 | 206 | 33 |
+| M3U | 5 | 5 | 0 |
+| TXT | 32 | 29 | 2 |
+
+Examples include the same JS providers mirrored across `FTY/`, `js/`, and `xiaosa/`; identical Python providers across `py/` and `xiaosa/py/`; and identical JSON provider definitions in `json/`, `XBPQ/`, and `xiaosa/`.
+
+These duplicates may be intentional app-profile copies with different relative-path bases or configuration consumers. No duplicate files were deleted. Before deduplication, each consumer's root/path resolution and app-specific compatibility must be confirmed.
