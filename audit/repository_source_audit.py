@@ -4,12 +4,12 @@ import json
 import ipaddress
 import os
 import re
-import time
 from datetime import datetime, timezone
 from urllib.parse import urlparse
 
 import requests
 import json5
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 ROOT = os.getcwd()
 SKIP_PARTS = {".git", ".github", "node_modules", "cat/js", "cat/dist", "cat/18_dist"}
@@ -159,17 +159,31 @@ def main():
               "file_count": len(paths), "max_files": MAX_FILES,
               "max_urls_per_file": MAX_URLS_PER_FILE, "max_probes": MAX_PROBES,
               "results": []}
-    total = 0
+    by_path = {}
+    tasks = []
+    seen_urls = set()
     for path in paths:
         item = inspect_file(os.path.join(ROOT, path))
-        for url in item.pop("sampled_urls", []):
-            if total >= MAX_PROBES:
+        sampled = item.pop("sampled_urls", [])
+        by_path[path] = item
+        for url in sampled:
+            if len(tasks) >= MAX_PROBES:
                 break
-            item["probes"].append({"url": url, **probe(url)})
-            total += 1
-            time.sleep(0.15)
-        report["results"].append(item)
-    report["probe_count"] = total
+            if url in seen_urls:
+                continue
+            seen_urls.add(url)
+            tasks.append((path, url))
+    with ThreadPoolExecutor(max_workers=12) as pool:
+        futures = {pool.submit(probe, url): (path, url) for path, url in tasks}
+        for future in as_completed(futures):
+            path, url = futures[future]
+            try:
+                result = future.result()
+            except Exception as exc:
+                result = {"status": "request_error", "error": str(exc)[:180]}
+            by_path[path]["probes"].append({"url": url, **result})
+    report["results"] = [by_path[path] for path in paths]
+    report["probe_count"] = len(tasks)
     report["summary"] = {
         "valid_json": sum(1 for x in report["results"] if x["parse"] == "valid_json"),
         "valid_json5": sum(1 for x in report["results"] if x["parse"] == "valid_json5"),
@@ -186,7 +200,7 @@ def main():
     with open("repository-source-audit-report.json", "w", encoding="utf-8") as f:
         json.dump(report, f, ensure_ascii=False, indent=2)
     print(json.dumps(report["summary"], ensure_ascii=False))
-    print("Files scanned: {} | URL probes: {}".format(len(paths), total))
+    print("Files scanned: {} | Unique URL probes: {}".format(len(paths), len(tasks)))
 
 
 if __name__ == "__main__":
