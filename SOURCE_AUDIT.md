@@ -87,3 +87,20 @@ Strict JSON parsing reports errors in the following files. Most observed errors 
 - `XYQBiu/`: `网易CC直播.json`
 
 The inventory found **43 strict-parser exceptions**. They are recorded for follow-up; no speculative mass-rewrite or deletion was performed.
+
+## Script dependency audit — first pass (2026-11-19)
+
+Repository inventory: 696 JavaScript files and 62 Python files. This pass focused on primary configuration entry points and representative runtime/build scripts; it is not yet a line-by-line validation of all 758 scripts.
+
+### JavaScript entry points checked
+
+- `lib/drpy2.min.js` imports `./drpy-core-lite.min.js` and `./uri.min.js`; both files exist under `lib/`.
+- `FTY/drpy2.js` imports `./uri.min.js`, which exists under `FTY/`. It also uses `assets://js/lib/cheerio.min.js` and `assets://js/lib/crypto-js.js` (runtime asset-scheme dependencies) and remote template/GBK resources. These are not ordinary repository-relative paths and require validation in the target app/runtime.
+- `js/drpy.js`, `js/cilixiong.js`, `js/678.js`, `js/茶杯狐.js`, `FTY/模板.js`, `FTY/斗鱼.js`, and `cat/js/douban_open.js` were inspected for obvious relative imports; none were detected by the first-pass import scan.
+- Configuration strings were parsed as structured JSON for `js.json`, `0825.json`, `dianshi.json`, `tools/dianshi.json`, and `xiaosa/api.json`. No confirmed missing local references were found after applying the correct path base and stripping metadata suffixes. In particular, `tools/dianshi.json` references are rooted at the repository root, not at `tools/`.
+
+### Python and build-script observations
+
+- Eight Python providers referenced by configs were sampled. They import `base.spider`; no `base/` package or `spider.py` module exists in this repository tree. This may be supplied by the target TVBox/drpy runtime, but that runtime contract has not yet been verified. Treat it as an external runtime dependency, not a confirmed broken import.
+- Build/helper scripts `tools/build_local.py`, `copy_xbpq.py`, `fty.py`, `hebing.py`, `tvbox.py`, and `xiao.py` were inspected. Their Python imports include third-party packages such as `requests`, `demjson3`, and `Crypto`; the repository does not currently provide a dependency lock/requirements file in the inspected tree. This can affect running maintenance scripts in a clean Python environment, but does not prove the playback sources are broken.
+- No scripts were changed or deleted in this pass. The full 696-JS/62-Python set still needs systematic call-graph and runtime testing.
