@@ -214,3 +214,36 @@ Additional endpoints found in `dianshi.json` were checked without querying adult
 - `https://vs.okcdn100.top/api.php/provide/vod`
 
 403 or inspection-service inaccessibility is not enough to label a source dead; app user-agent, geographic routing, or upstream protection may differ. No source was removed. As with the earlier checks, receiving a listing response is not playback validation.
+
+
+## 中文补充说明：本轮继续核查（2026-11-19）
+
+### 新发现的普通点播接口
+
+从当前分支的 `dianshi.json`、`0825.json` 和 `js.json` 再次提取接口地址，排除成人内容接口后，对此前尚未覆盖的地址进行了补充请求：
+
+| 配置接口 | 本轮检查结果 | 处理结论 |
+|---|---|---|
+| `http://ffzy.tv/api.php/provide/vod/` | 当前检查服务无法访问 | 待目标播放器/网络环境复测，不判定失效 |
+| `https://wolongzyw.com/api.php/provide/vod/?ac=list` | 当前检查服务无法访问 | 待复测，不删除 |
+| `https://zy.jinchancaiji.com/api.php/provide/vod/?ac=list` | 检查服务返回 502 | 可能是网关或检查链路问题，待复测 |
+| `http://154.219.117.232:9981/jacloudapi.php/provide/vod` | 当前检查服务未能解析/请求 | IP 直连接口待设备端验证 |
+| `https://api.tyun77.cn/api.php/provide/par` | 当前检查服务无法访问 | 这是配置中出现的解析类接口路径，不能仅按普通 CatVod 列表接口判断 |
+
+以上状态只描述本轮检查工具的结果，不代表源站必然宕机。HTTP 403、502、DNS/请求失败或网页检查工具不可访问，都可能受 UA、网络出口、地区策略、反爬或网关影响。需要在实际 TVBox 客户端网络中继续复测。
+
+### 如何理解“可用”
+
+- **配置存在**：配置文件及本地引用能找到，只能证明静态结构完整。
+- **接口有响应**：服务端返回了列表格式数据，说明接口在检查时可访问；不代表详情、搜索、播放地址都正常。
+- **播放链路可用**：还需要成功获取详情和播放地址，并实际请求媒体清单/分片或完成播放器播放测试。
+- **分发可用且合规**：还需要确认源站授权、内容版权和允许再分发的范围。技术上能访问不等于有权镜像。
+
+因此，本轮没有因检查服务报错就批量删除点播源，也没有把仅返回列表的接口标记成“已播放验证”。成人内容配置继续隔离，不纳入公开镜像候选。
+
+### 当前后续重点
+
+1. 在真实播放器/设备网络中复测标记为“待验证”的接口，记录 HTTP 状态、响应格式和请求时间。
+2. 对确认可返回列表的普通接口，继续检查详情接口和播放地址提取；只记录结构与状态，不公开复制媒体地址。
+3. 对普通直播列表分批抽样检查 HLS/M3U 响应和媒体分片；遇到鉴权、Referer、UA 或地域限制时单独标记。
+4. 在没有明确再分发授权前，不生成国内镜像/CDN 分发链接。
