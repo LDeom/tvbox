@@ -489,3 +489,9 @@ This pass checks reference existence and path conventions, not JavaScript execut
 - 发现的未解析路径只存在于注释掉的站点配置，不属于当前启用源；未删除或改写该条配置。
 - `jar/fan.txt` 路径本身存在，但文件内容/格式仍无法确认，继续保留待查。
 - 仅验证引用路径，不把它等同于源运行或实播通过；未改 master、未删除源、未构建 APK、未发布 Release。
+
+
+## 2026-11-19 — 补充记录 Cloud-drive 扩展依赖
+
+- 进一步发现 0821.json 与 0826.json 各有 11 处启用源引用 tvfan/Cloud-drive.txt；当前分支文件树没有该文件。它属于不带 ./ 前缀的扩展依赖，未被此前的相对路径扫描覆盖。
+- 由于该文件可能由播放器运行环境外置提供，暂记为“未解析的运行时依赖”，不创建空文件、不删除相关源，也不判定源失效。需要确认客户端对 ext.Cloud-drive 的解析方式后再决定是否补齐。
