@@ -104,3 +104,18 @@ Repository inventory: 696 JavaScript files and 62 Python files. This pass focuse
 - Eight Python providers referenced by configs were sampled. They import `base.spider`; no `base/` package or `spider.py` module exists in this repository tree. This may be supplied by the target TVBox/drpy runtime, but that runtime contract has not yet been verified. Treat it as an external runtime dependency, not a confirmed broken import.
 - Build/helper scripts `tools/build_local.py`, `copy_xbpq.py`, `fty.py`, `hebing.py`, `tvbox.py`, and `xiao.py` were inspected. Their Python imports include third-party packages such as `requests`, `demjson3`, and `Crypto`; the repository does not currently provide a dependency lock/requirements file in the inspected tree. This can affect running maintenance scripts in a clean Python environment, but does not prove the playback sources are broken.
 - No scripts were changed or deleted in this pass. The full 696-JS/62-Python set still needs systematic call-graph and runtime testing.
+
+## Python script inventory — complete static import pass (2026-11-19)
+
+All 62 repository `.py` files were read and scanned for top-level import statements, obvious network-library use, and relative file references.
+
+- The provider scripts predominantly import `base.spider`; this module is not present in the repository tree and is treated as a host-runtime dependency, not a confirmed missing repository file.
+- `xiaosa/py/世界听书.py` additionally references `t4.base.spider`; availability of that runtime module remains unverified.
+- Third-party modules observed include `requests`, `Crypto` (PyCryptodome), `bs4` (BeautifulSoup), `pyquery`, `urllib3`, and `cryptography`. Presence in the app/runtime environment was not tested.
+- Most provider scripts contain hard-coded remote service endpoints. Static presence of those endpoints does not establish current DNS/HTTP availability, API compatibility, or playable media.
+- No missing repository-relative file dependency was confirmed in this Python scan.
+- The scan is static; it does not compile or execute the Python sources and cannot establish service availability or runtime compatibility.
+
+## JavaScript sampling update
+
+Additional representative live/provider scripts under `FTY/` and `js/` were inspected. The sampled scripts did not expose obvious Node-style `require()` imports or relative file references. Several use runtime-provided networking APIs (for example `fetch`); compatibility depends on the target TVBox JavaScript engine. This remains a sample, not a full 696-file runtime audit.
