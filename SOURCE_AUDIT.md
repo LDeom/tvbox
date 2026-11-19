@@ -411,3 +411,12 @@ This pass checks reference existence and path conventions, not JavaScript execut
 - 已将 push 触发分支限定为 `audit/repair-sources-2026-11`，并给 `xiaosa`、`fty`、`git-push` 三个 job 增加 `github.ref_name != 'master'` 条件。
 - 因此从 master 触发的 schedule 或手动运行会跳过源抓取和推送；从审计分支触发时才执行，并将提交推回当前分支。推送仍为非强制模式。
 - 本次仅修改工作流配置并复核文件内容；未实际运行工作流，未触发外部源抓取。后续仍需在 GitHub Actions 对该分支做一次受控验证，确认 runner 环境和 artifact 步骤正常。
+
+
+## JavaScript 文件重复内容盘点（2026-11-19）
+
+- 从完整 Git tree（未截断）读取到 696 个 `.js` 文件，对象 blob SHA 分组后有 644 个不同内容对象；发现 46 组字节级完全相同的文件，共涉及 98 个路径。
+- 完全相同的内容不等于可删除的冗余：多个目录（例如 `FTY/`、`js/`、`xiaosa/js/`、`lib/`）可能分别由不同配置或运行时按固定路径加载；本轮没有删除或合并任何副本。
+- 示例：`FTY/88看球.js`、`js/88看球.js`、`xiaosa/js/88看球.js` 内容相同；`lib/drpy2.min.js` 与 `xiaosa/js/drpy2.min.js` 内容相同。另有部分不同文件名但内容相同，需结合配置引用判断用途。
+- 本轮已确认仓库当前仍有 696 个 JS、62 个 Python 文件。受 GitHub connector 单次工具调用预算限制，本轮未完成 696 个 JS 的逐文件语法解析；不得将重复 blob 盘点或少量样本语法检查表述为全量语法通过。
+- 配置引用应按各配置格式的字段语义解析，不能用简单的正则匹配推断缺失文件；此前记录的 `cat/js/config_open_online.json` 中 `dyxs_openn.js` 拼写问题已修复为 `dyxs_open.js`。
