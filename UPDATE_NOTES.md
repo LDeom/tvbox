@@ -232,7 +232,7 @@
 - 新增 `avbox/99188-avbox.json`（成人点播，64 个站点）。
 - 新增 `avbox/adult-live.json`（成人直播，4 组列表）。
 - 新增 `avbox/README.md`。
-- 仓库内相对资源引用已替换为 `https://gh-proxy.com/https://raw.githubusercontent.com/LDeom/tvbox/audit/repair-sources-2026-11/...`。
+- 仓库内相对资源引用已替换为 `https://gh-proxy.org/https://raw.githubusercontent.com/LDeom/tvbox/audit/repair-sources-2026-11/...`。
 - 尚未完成所有第三方 API 与频道流的真实播放测试；订阅可解析不代表每条源均可播放。 
 
 ## 2026-11-19 点播空内容排查补充
