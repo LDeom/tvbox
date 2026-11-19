@@ -451,3 +451,12 @@ This pass checks reference existence and path conventions, not JavaScript execut
 - `xiaosa/api.json`、`jsm.json`、`dianshi.json` 中另有固定 `sign` / `buildSignature` 字段。本轮仅标记为凭据样式值，尚未确认是否为个人秘密、公共接口签名或静态协议常量，不擅自删除。
 - 配置中的敏感值没有复制进审计报告或更新日志。上述值已进入公开仓库历史，单纯改当前文件不能清除 Git 历史；建议凭据所有者撤销/轮换旧会话与 Token，并评估清理公开 Git 历史及 CDN 缓存。
 - 本轮尚未改写这些配置字段，避免未经确认就清空用户 Cookie/Token 导致源功能失效。待确认后可将公开配置改为用户自行填写的占位值；不能替用户撤销第三方账号会话。
+
+
+## 凭据脱敏修复（2026-11-19）
+
+- 经确认，将 `cat/js/config_open.json`、`cat/js/config_open_online.json` 中哔哩及哔哩直播的 4 处 Cookie 替换为用户自行填写占位值。
+- 将 `cat/tjs/open_config.json`、`cat/tjs/tv_config.json` 中 12 处阿里云盘 Token、12 处夸克 Cookie、2 处 B站 Cookie 替换为用户自行填写占位值（两份配置内容存在重复）。
+- 保留字段结构和源条目，不删除源；相关需要个人登录态的功能须由用户重新填写自己的凭据后使用。
+- 重新读取四份文件并解析 JSON；检查上述目标字段均无残留的非占位长凭据。
+- 此修改只影响当前分支最新文件，不会自动清除 Git 历史、fork、已下载副本或 CDN 缓存中的旧值。建议凭据所有者撤销/轮换旧会话与 Token，并另行评估历史清理。
