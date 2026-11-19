@@ -326,3 +326,10 @@ This pass checks reference existence and path conventions, not JavaScript execut
 - 已改为 `git push origin "HEAD:${GITHUB_REF_NAME}"`，推送当前触发分支并取消强制推送；发生非快进冲突时会失败而不是覆盖远端历史。
 - 未运行工作流，未触发外部源抓取，未构建 APK，未发布 Release，也未修改 master。
 - Python 全量静态 import 盘点此前覆盖 62 个文件；`pyquery`、`cryptography` 是否由目标播放器内置仍待设备端验证，没有擅自增加 pip 安装步骤。
+
+
+## 2026-11-19 — 自动更新工作流进一步隔离审计分支
+
+- 修正此前仅使用 `GITHUB_REF_NAME` 作为推送目标仍可能触及 master 的问题：GitHub schedule 默认在仓库默认分支运行，手动 dispatch 也可能从 master 发起。
+- push 触发器现限定为 `audit/repair-sources-2026-11`；三个 job 均跳过 master 上的运行；审计分支触发时只向当前分支进行普通（非 force）推送。
+- 未执行工作流、未抓取外部源、未修改 master。需要后续受控验证 Actions runner 的实际执行结果。
