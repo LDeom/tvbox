@@ -1,0 +1,15 @@
+{
+  "sites": [
+    {
+      "key": "avbox_ukuapi_20261119",
+      "name": "UKU影视（接口已响应）",
+      "type": 1,
+      "api": "https://api.ukuapi.com/api.php/provide/vod/",
+      "searchable": 1,
+      "quickSearch": 1,
+      "filterable": 1,
+      "changeable": 1,
+      "timeout": 15
+    }
+  ]
+}
