@@ -413,3 +413,12 @@ This pass checks reference existence and path conventions, not JavaScript execut
 - 搜索和详情请求仍未取得可验证正文；vod_play_url 与真实媒体播放未确认。
 - 暴风、索尼沿用此前已确认列表数据的状态，本轮不增加新确认项。
 - 本轮仅普通点播；不改配置、不删除源、不改 master、不构建 APK。
+
+
+## 普通点播 API 复测补充（2026-11-19）
+
+- 尤酷 API 已重新确认返回有效非空列表，旧域名跳转至 api.ukuapi88.com，响应 code=1、total=60854。列表样本 vod_play_url 为空，仍需详情接口验证。
+- 索尼列表 API 本轮再次返回非空 JSON，total=149351；响应头 text/html 与正文 JSON 不一致，需验证播放器兼容性。
+- 尤酷、索尼详情请求和尤酷搜索请求被当前检测通道拒绝，未获得响应正文；不据此判源失效。
+- 当前普通点播列表 API 已确认 5 个唯一源：量子、暴风、索尼、百度、尤酷。完整搜索、详情和媒体播放均未全部通过。
+- 本轮只检查普通点播；不改配置、不删除源、不改 master、不构建 APK。
