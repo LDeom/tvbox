@@ -396,3 +396,11 @@ This pass checks reference existence and path conventions, not JavaScript execut
 
 
 - 成人点播抽样补测：lbapi9、apilj、maozyapi、apittzy、kkzy 五个 API 的网页检测请求均未取得响应体，全部保持“未验证”，不标记失效。
+
+
+## 普通点播 API 扩展复测（2026-11-19）
+
+- 新增确认百度采集 API `api.apibdzy.com` 列表端点返回 `code=1`、非空影视列表及分类数据，服务端自报总数 49763；响应头为 text/html、正文为 JSON，需留意播放器兼容性。
+- 普通点播累计 4 个 API 列表端点确认有数据：量子、暴风、索尼、百度。该数量按 API 端点去重，不是配置出现次数，也不代表完整可播放。
+- 海外看、快帆、乐视、电影天堂、天涯、卧龙、极速、金蝉、小绵阳等当前检测通道未能取得响应正文/返回 502，均列为未验证，不判死。
+- 18+ 点播不在本轮范围。未修改源配置、未删除源、未修改 master、未构建 APK。
