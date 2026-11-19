@@ -1,29 +1,47 @@
 # AVBox 订阅配置
 
-本目录提供 AVBox 可读取的 TVBox 系列 JSON 配置与直播订阅入口。所有仓库内文件引用均改为你指定的 gh-proxy.com + raw.githubusercontent.com 形式。
+本目录提供 AVBox 配置结构示例及订阅入口。仓库文件的 CDN 访问测试以 jsDelivr 为准；用户设备已确认能够打开下方的 jsDelivr 测试文件。该结果只证明配置文件下载链路可达，不代表其中第三方站点或媒体流可播放，也不代表拥有内容再分发授权。
 
-## 订阅地址
+## 普通配置入口（jsDelivr）
 
-- 普通点播配置：[0825-avbox.json](https://gh-proxy.org/https://raw.githubusercontent.com/LDeom/tvbox/audit/repair-sources-2026-11/avbox/0825-avbox.json)
-- 普通直播配置：[live.json](https://gh-proxy.org/https://raw.githubusercontent.com/LDeom/tvbox/audit/repair-sources-2026-11/avbox/live.json)
-- 成人点播配置：[99188-avbox.json](https://gh-proxy.org/https://raw.githubusercontent.com/LDeom/tvbox/audit/repair-sources-2026-11/avbox/99188-avbox.json)
-- 成人直播配置：[adult-live.json](https://gh-proxy.org/https://raw.githubusercontent.com/LDeom/tvbox/audit/repair-sources-2026-11/avbox/adult-live.json)
+- 普通点播配置：[0825-avbox.json](https://cdn.jsdelivr.net/gh/LDeom/tvbox@audit/repair-sources-2026-11/avbox/0825-avbox.json)
+- 最小点播排障配置：[vod-verified.json](https://cdn.jsdelivr.net/gh/LDeom/tvbox@audit/repair-sources-2026-11/avbox/vod-verified.json)
+- 普通直播配置：[live.json](https://cdn.jsdelivr.net/gh/LDeom/tvbox@audit/repair-sources-2026-11/avbox/live.json)
+
+## 成人内容文件标识
+
+以下文件属于成人内容配置，统一按 **18+** 标识，必须与普通点播、普通直播配置分开管理，不应在普通入口中混合展示：
+
+- `99188-avbox.json` — **18+ 成人点播配置**
+- `adult-live.json` — **18+ 成人直播配置**
+
+18+ 是内容分级标识，不是年龄验证机制，也不代表内容来源已经获得授权。使用者应遵守所在地法律、平台规则及内容提供方的年龄与访问限制。
 
 ## 兼容性说明
 
-- 点播 JSON 保留原配置的 sites 字段与 type/api/ext/jar 等站点参数；AVBox 的 ConfigParser 按 sites[].key/type/api 解析站点。
-- 直播 JSON 使用 lives 数组；AVBox 支持 lives 配置，也支持直接读取 M3U、TXT。
-- 原配置中仓库相对路径（例如 ./jar、./json、./js、./lib、./list.txt）已改成绝对 gh-proxy 代理 Raw 地址，避免代理域名下相对路径解析到错误位置。
-- 订阅中只列出结构正常且仓库内存在的直播列表文件；这不等于每个直播 URL 都已完成真实播放验证。
-- TVBox 的 type=3 Spider / JS / JAR 站点依赖对应脚本或运行环境。AVBox 具备相关 CatVod 运行代码，但个别站点仍可能因第三方站点改版、登录态、网络地区、脚本兼容性或本地代理依赖而不可用。
-- 未验证成功的 API 不标注为“已可播放”；建议在 AVBox 中逐个测试。
-- 成人内容订阅与普通订阅完全分离，请按需自行添加。
-- 本次仅在审计分支新增文件，不修改 master、不创建 PR、不发布 Release。
+- 点播 JSON 使用 `sites` 字段及站点参数；AVBox 按其支持的站点类型解析。
+- 直播 JSON 使用 AVBox 所需的 `lives` 结构；实际兼容性仍应在目标版本中测试。
+- 配置文件可通过 jsDelivr 下载，不代表文件内的 API、脚本、图片、播放地址或其他外部依赖也能访问。
+- 第三方站点可能受站点改版、登录态、网络地区、脚本兼容性、鉴权或本地代理依赖影响。
+- **状态分级：** 文件可下载、JSON 可解析、API 有响应、实际播放成功，是不同验证阶段，不可混为一谈。
+- 未完成目标设备实际播放验证的站点，不标记为“已可播放”。
+- 成人配置与普通配置分离；文件名及文档均明确标记 **18+**。
 
 ## 点播无内容问题的排查版本（2026-11-19）
 
-- 新增 `vod-verified.json`：这是最小 AVBox 原生点播配置，仅保留一个 type=1 的 MacCMS API 站点，避免原始 135 站点配置中大量 type=3 爬虫/JAR/JS 依赖干扰首次验证。
-- 默认站点使用 `https://api.ukuapi.com/api.php/provide/vod/`。2026-11-19 对其 `?ac=list` 请求观察到接口返回 JSON、分类列表及影视记录；这证明接口列表端点当时有响应，不代表 AVBox 真机详情/播放已验证。
-- AVBox 的 `SortLoader` 对 type=1 调用 API 并以 JSON 解析分类；type=3 则需要成功加载对应 Spider。原先默认首站点是 type=3 的「豆瓣」，可能因为 Spider 或上游数据问题导致首页无内容。
-- 请先移除旧的普通点播订阅，再添加下方新链接，确保切换到新站点 key：
-  `https://gh-proxy.org/https://raw.githubusercontent.com/LDeom/tvbox/audit/repair-sources-2026-11/avbox/vod-verified.json`
+- `vod-verified.json` 是用于隔离 Spider/JAR/JS 依赖的最小点播排障配置。
+- 此前检查曾观察到其 API 列表端点返回结构化 JSON；这不是 AVBox 真机详情或播放成功的证明。
+- 如果导入成功但没有分类/影视，应进一步区分配置下载、JSON 解析、分类接口、详情接口及播放地址提取阶段。
+
+## CDN 验证记录（2026-11-19）
+
+- 用户设备已确认可以通过 jsDelivr 打开以下文件：`avbox/vod-verified.json`。
+- 已验证的 URL 格式：`https://cdn.jsdelivr.net/gh/LDeom/tvbox@audit/repair-sources-2026-11/...`
+- 该验证仅针对上述文件的下载访问；其他文件、配置内嵌资源和第三方媒体源仍需分别验证。
+- GH-Proxy 链路此前在用户设备上无法访问，因此不再将其作为首选订阅下载入口。
+
+## 维护边界
+
+- 本次维护只记录 CDN 下载链路与配置分类，不代表第三方源已获授权或可公开再分发。
+- 不因单次网络检查失败就擅自删除源；也不把仅能下载配置或返回列表的源标记为播放成功。
+- 所有改动仅位于 `audit/repair-sources-2026-11` 分支；不修改 `master`、不创建 PR、不发布 Release。
