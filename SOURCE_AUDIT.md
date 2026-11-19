@@ -273,3 +273,14 @@ Additional endpoints found in `dianshi.json` were checked without querying adult
 本轮尝试直接请求代表性 HLS/广播地址时，当前网页检查环境均未能取得可解析的播放清单（部分返回内部错误或不可访问）。因此本轮没有确认任何一个节目流“可播放”或“失效”。必须在目标设备/播放器网络中做 HLS 清单、分片和实际解码测试。对于带鉴权、Referer、UA、IPv6 或地区限制的源，需记录对应条件后再判定。
 
 本轮只增加风险标记与中文说明，没有删除直播源，也没有改写节目 URL。
+
+## AVBox 订阅适配（2026-11-19）
+
+- 已核对 LDeom/AVBox 当前 main 分支源码：点播站点由 `sites[].key/type/api` 解析；直播 JSON 由 `lives` 解析；直播文本支持 M3U 与 TXT。
+- 新增 `avbox/0825-avbox.json`：基于普通配置，保留 135 个站点；全部 149 处相对路径引用均在仓库中找到并转换为 gh-proxy.com 代理 Raw 绝对地址。
+- 新增 `avbox/99188-avbox.json`：成人配置，保留 64 个站点；全部 29 处相对路径引用均在仓库中找到并转换为代理绝对地址。
+- 新增 `avbox/live.json`：提供 list.txt、list.m3u、ITV.txt、tvboxtv.txt、tvlive.txt 五个普通直播列表入口。
+- 新增 `avbox/adult-live.json`：提供 listx.txt、livex.m3u 及两个外部成人直播列表入口。
+- 新增 `avbox/README.md` 说明订阅链接与限制。
+- 重要限制：结构检查、仓库路径存在性检查不等于第三方站点 API 或直播流真实播放验证；不能将全部站点标记为已可播放。TVBox Spider/JAR/JS 源仍可能依赖外部站点状态、登录态、网络环境或本地代理。
+- 本次新增文件位于 `audit/repair-sources-2026-11`，未改 master、未创建 PR、未发布 Release。
