@@ -403,3 +403,11 @@ This pass checks reference existence and path conventions, not JavaScript execut
 - 仓库树中共 62 个 Python 文件；此前完整静态 import 扫描记录已列于上文。当前可确认的第三方依赖类别包括 `requests`、`Crypto`（PyCryptodome）、`bs4`、`pyquery`、`urllib3` 和 `cryptography`。
 - 工作流工具任务明确安装 `demjson3`、`pycryptodome`、`requests`；插件脚本中的 `pyquery` 和 `cryptography` 是否由目标播放器运行时提供，仍需在目标环境验证，不在此处擅自加入全局依赖安装。
 - 本次未执行 62 个脚本的 Python 编译或运行，也未对外部 API 做全量探测；静态 import 结果不能替代运行时兼容性测试。
+
+
+## 工作流分支隔离补充修复（2026-11-19）
+
+- 进一步复核发现：仅将推送目标改为 `GITHUB_REF_NAME` 仍不足以隔离 master，因为 GitHub 的定时 schedule 事件始终在默认分支运行，`workflow_dispatch` 也可能从 master 手动触发。
+- 已将 push 触发分支限定为 `audit/repair-sources-2026-11`，并给 `xiaosa`、`fty`、`git-push` 三个 job 增加 `github.ref_name != 'master'` 条件。
+- 因此从 master 触发的 schedule 或手动运行会跳过源抓取和推送；从审计分支触发时才执行，并将提交推回当前分支。推送仍为非强制模式。
+- 本次仅修改工作流配置并复核文件内容；未实际运行工作流，未触发外部源抓取。后续仍需在 GitHub Actions 对该分支做一次受控验证，确认 runner 环境和 artifact 步骤正常。
