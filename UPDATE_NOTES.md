@@ -430,3 +430,13 @@ This pass checks reference existence and path conventions, not JavaScript execut
 - 工作流支持手动运行，产出 `ordinary-vod-api-audit` JSON artifact；只读权限，不改仓库配置。当前尚未运行，报告未生成。
 - 本轮运行环境无法直接访问外部 API，且当前 GitHub 工具未提供 workflow_dispatch 写操作，因此需要在 Actions 页面手动启动。不得将工具已就绪等同于源链路验证通过。
 - 仅修改审计分支，不涉及 18+ 源、master 或 APK 构建。
+
+
+## 2026-11-19 — 普通点播 API 自动化链路实测
+
+- GitHub Actions run `44536222364`（run #1）已成功完成，artifact `ordinary-vod-api-audit` 已上传并读取。
+- 量子、暴风、索尼、百度、尤酷五个 API 均返回 HTTP 200 非空列表，且五个详情请求均返回非空 `vod_play_url`。
+- 搜索“流浪地球”：量子 20 条、暴风 20 条、百度 2 条、尤酷 5 条；索尼搜索响应解析失败，需复测。
+- 媒体地址首条 Range 探测：暴风 HTTP 206（HLS Content-Type）；量子 HTTP 404；索尼/百度/尤酷 HTTP 403。403 仅表示当前探测请求受限，不代表源站或 API 失效；量子 404 仅针对抽样的单条播放地址。
+- 脚本已改为区分 206、200、403、404 等探测结果，不再把所有响应统称为 `responded`。更新后的工作流会在后续分支提交时重新运行。
+- 仍未完成播放器内实际播放验证；没有删除源或修改源配置，没有修改 master、构建 APK 或发布 Release。
