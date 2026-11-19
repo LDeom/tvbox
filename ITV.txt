@@ -557,7 +557,7 @@ BesTV-12,http://gslbserv.itv.cmvideo.cn:80/1.m3u8?channel-id=FifastbLive&Content
 BesTV-13,http://gslbserv.itv.cmvideo.cn:80/1.m3u8?channel-id=FifastbLive&Contentid=2000000002000000030&livemode=1&stbId=meyou&mode=1
 BesTV-14,http://gslbserv.itv.cmvideo.cn:80/1.m3u8?channel-id=FifastbLive&Contentid=2000000002000000049&livemode=1&stbId=meyou&mode=1
 BesTV-15,http://gslbserv.itv.cmvideo.cn:80/1.m3u8?channel-id=FifastbLive&Contentid=2000000002000000050&livemode=1&stbId=meyou&mode=1
-BesTV-16http://gslbserv.itv.cmvideo.cn:80/1.m3u8?channel-id=FifastbLive&Contentid=2000000002000000051&livemode=1&stbId=meyou&mode=1
+BesTV-16,http://gslbserv.itv.cmvideo.cn:80/1.m3u8?channel-id=FifastbLive&Contentid=2000000002000000051&livemode=1&stbId=meyou&mode=1
 BesTV-17,http://gslbserv.itv.cmvideo.cn:80/1.m3u8?channel-id=FifastbLive&Contentid=5000000001000001116&livemode=1&stbId=meyou&mode=1
 BesTV-18,http://gslbserv.itv.cmvideo.cn:80/1.m3u8?channel-id=FifastbLive&Contentid=5000000001000017342&livemode=1&stbId=meyou&mode=1
 BesTV-19,http://gslbserv.itv.cmvideo.cn:80/1.m3u8?channel-id=FifastbLive&Contentid=2000000002000000025&livemode=1&stbId=meyou&mode=1
