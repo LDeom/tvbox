@@ -420,3 +420,11 @@ This pass checks reference existence and path conventions, not JavaScript execut
 - 示例：`FTY/88看球.js`、`js/88看球.js`、`xiaosa/js/88看球.js` 内容相同；`lib/drpy2.min.js` 与 `xiaosa/js/drpy2.min.js` 内容相同。另有部分不同文件名但内容相同，需结合配置引用判断用途。
 - 本轮已确认仓库当前仍有 696 个 JS、62 个 Python 文件。受 GitHub connector 单次工具调用预算限制，本轮未完成 696 个 JS 的逐文件语法解析；不得将重复 blob 盘点或少量样本语法检查表述为全量语法通过。
 - 配置引用应按各配置格式的字段语义解析，不能用简单的正则匹配推断缺失文件；此前记录的 `cat/js/config_open_online.json` 中 `dyxs_openn.js` 拼写问题已修复为 `dyxs_open.js`。
+
+
+## 19 个主配置的本地 JS 引用复核（2026-11-19）
+
+- 对 19 个主要配置文件按 JSON 结构递归提取 `api`、`script`、`spider` 等字段，并结合配置所在目录和仓库路径规则解析本地 `.js` 引用。
+- 覆盖：`cat/js/` 下四份普通/18+配置、`cat/tjs/` 下四份普通/18+配置，以及 `xiaosa/api.json`、`jsm.json`、`js.json`、`0825.json`、`0821.json`、`dianshi.json`、`tools/dianshi.json`、`tools/jsm.json`、`99188.json`、`9918.json`、`fty.json`。
+- 按上述规则解析到的本地 JS 引用均能在仓库文件树中找到；本轮未发现缺失的本地 JS 目标。配置内的 `assets://`、HTTP(S) URL、`csp_*` 等播放器资产 URI、远程或运行时标识不作为仓库本地文件缺失处理。
+- 这是一项配置到文件路径的静态存在性检查，不验证远程 API 是否在线、不验证播放器运行时能否加载，也不代表 696 个 JS 文件都被引用。未引用脚本需要结合插件入口、动态加载、外部配置及运行时约定继续判定，不能直接删除。
