@@ -565,3 +565,27 @@ This pass checks reference existence and path conventions, not JavaScript execut
 - 新增 GitHub Actions 工作流 `.github/workflows/vod-api-audit.yml`，支持手动触发，运行后上传 `ordinary-vod-api-audit` JSON 报告（保留 14 天）。工作流权限仅 `contents: read`，不会写回仓库或修改源配置。
 - 本环境没有外部 DNS/HTTP 访问能力，GitHub 连接器也没有 workflow_dispatch 写操作；工作流文件已提交，但本轮尚未实际运行，故尚无搜索/详情/媒体结果。需在 GitHub Actions 页面手动运行后读取报告，不能把“已创建检测工作流”表述成“已通过检测”。
 - 脚本和工作流仅位于 `audit/repair-sources-2026-11` 分支；未构建 APK、未改 master、未删除或改写源配置。
+
+
+## 普通点播 API 自动化链路抽测结果（2026-11-19，Actions run #1）
+
+GitHub Actions run `44536222364` 已完成，job 和报告上传均为 success。JSON artifact：`ordinary-vod-api-audit`。本次仅检查普通点播五个 API，不改动源配置。
+
+| 源 | 列表 | 搜索“流浪地球” | 详情 `vod_play_url` | 首条媒体 URL Range 探测 |
+|---|---|---|---|---|
+| 量子 | HTTP 200，20 条 | 命中 20 条 | 有，ID 167147 | HTTP 404，目标媒体地址未找到 |
+| 暴风 | HTTP 200，20 条 | 命中 20 条 | 有，ID 169055 | HTTP 206，返回 `application/vnd.apple.mpegurl`，本次探测通过 |
+| 索尼 | HTTP 200，20 条 | JSON 解析异常 | 有，ID 157785 | HTTP 403，可能有防盗链/访问限制，不能判死 |
+| 百度 | HTTP 200，20 条 | 命中 2 条 | 有，ID 50164 | HTTP 403，可能有防盗链/访问限制，不能判死 |
+| 尤酷 | HTTP 200，20 条 | 命中 5 条 | 有，ID 75948 | HTTP 403，可能有防盗链/访问限制，不能判死 |
+
+### 结果解释与限制
+
+- 五个 API 的列表、详情均取得非空数据；四个搜索请求返回命中，索尼搜索请求在解析响应时失败。索尼详情成功说明不能把单次搜索解析异常扩大为整个 API 失效。
+- 五个详情响应均含非空 `vod_play_url`。但脚本只抽取每个详情的第一条播放地址进行轻量 Range 请求，不等于完整播放或全部线路验证。
+- 暴风返回 HTTP 206，且 Content-Type 为 HLS 播放列表类型，是本轮最强的媒体可达证据；仍未在 TVBox/AVBox 播放器内实播。
+- 量子首条媒体地址返回 404，应继续检查该条线路/剧目或重新抽样其他详情，不据单条地址删除量子 API。
+- 索尼、百度、尤酷返回 403，可能与 Referer、Cookie、UA、IP/地区策略或防盗链有关；当前结果是“受限/未确认”，不是“源失效”。
+- 列表的 `total` 是服务端目录总数，不是有效影视数或可播放数。
+- 本次 GitHub Actions job success 代表检测程序成功执行并上传报告，不代表所有源播放成功。
+- 此次工作流为 push 事件触发；后续工作流也支持手动 `workflow_dispatch`。未修改 master、未删除源、未构建 APK、未发布 Release。
