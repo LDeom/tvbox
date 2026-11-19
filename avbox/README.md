@@ -4,10 +4,10 @@
 
 ## 订阅地址
 
-- 普通点播配置：[0825-avbox.json](https://gh-proxy.com/https://raw.githubusercontent.com/LDeom/tvbox/audit/repair-sources-2026-11/avbox/0825-avbox.json)
-- 普通直播配置：[live.json](https://gh-proxy.com/https://raw.githubusercontent.com/LDeom/tvbox/audit/repair-sources-2026-11/avbox/live.json)
-- 成人点播配置：[99188-avbox.json](https://gh-proxy.com/https://raw.githubusercontent.com/LDeom/tvbox/audit/repair-sources-2026-11/avbox/99188-avbox.json)
-- 成人直播配置：[adult-live.json](https://gh-proxy.com/https://raw.githubusercontent.com/LDeom/tvbox/audit/repair-sources-2026-11/avbox/adult-live.json)
+- 普通点播配置：[0825-avbox.json](https://gh-proxy.org/https://raw.githubusercontent.com/LDeom/tvbox/audit/repair-sources-2026-11/avbox/0825-avbox.json)
+- 普通直播配置：[live.json](https://gh-proxy.org/https://raw.githubusercontent.com/LDeom/tvbox/audit/repair-sources-2026-11/avbox/live.json)
+- 成人点播配置：[99188-avbox.json](https://gh-proxy.org/https://raw.githubusercontent.com/LDeom/tvbox/audit/repair-sources-2026-11/avbox/99188-avbox.json)
+- 成人直播配置：[adult-live.json](https://gh-proxy.org/https://raw.githubusercontent.com/LDeom/tvbox/audit/repair-sources-2026-11/avbox/adult-live.json)
 
 ## 兼容性说明
 
@@ -26,4 +26,4 @@
 - 默认站点使用 `https://api.ukuapi.com/api.php/provide/vod/`。2026-11-19 对其 `?ac=list` 请求观察到接口返回 JSON、分类列表及影视记录；这证明接口列表端点当时有响应，不代表 AVBox 真机详情/播放已验证。
 - AVBox 的 `SortLoader` 对 type=1 调用 API 并以 JSON 解析分类；type=3 则需要成功加载对应 Spider。原先默认首站点是 type=3 的「豆瓣」，可能因为 Spider 或上游数据问题导致首页无内容。
 - 请先移除旧的普通点播订阅，再添加下方新链接，确保切换到新站点 key：
-  `https://gh-proxy.com/https://raw.githubusercontent.com/LDeom/tvbox/audit/repair-sources-2026-11/avbox/vod-verified.json`
+  `https://gh-proxy.org/https://raw.githubusercontent.com/LDeom/tvbox/audit/repair-sources-2026-11/avbox/vod-verified.json`
