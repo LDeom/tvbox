@@ -309,3 +309,12 @@ This pass checks reference existence and path conventions, not JavaScript execut
 
 - `cat/js/config_open_online.json` line 68 used `dyxs_openn.js`, while the repository contains `cat/js/dyxs_open.js` and the site key is `dyxs_open`. Updated the API filename to `dyxs_open.js` and verified the target exists in the branch tree.
 
+## Python dependency and automation workflow review (2026-11-19)
+
+- Inspected the repository's `.github/workflows/run.yml` and representative Python plugins/tooling. The workflow installs `demjson3`, `pycryptodome`, and `requests` for its `tools/` jobs; these cover the explicit third-party imports seen in `tools/tvbox.py` and `tools/build_local.py`.
+- The Python plugins also import host-provided modules such as `base.spider` and `t4.base.spider`; these are TVBox/runtime APIs, not ordinary pip packages, so their availability must be tested inside the target application/runtime.
+- Additional third-party imports found in sampled plugins include `pyquery` (`py/网络直播.py`) and `cryptography` (`py/红果短剧.py`). They are not installed by the repository's automation workflow. This is a potential runtime dependency gap, not yet a confirmed failure: the target app may bundle them.
+- Standard-library imports such as `urllib`, `json`, `hashlib`, `concurrent.futures`, and `http.server` do not require pip installation.
+- The workflow is configured to trigger on pushes to `master` affecting `tools/**` (as well as manual/scheduled runs). Its final `git-push` job executes `git push -f origin master`. This force-push behavior can overwrite concurrent master history; it is an operational risk worth reviewing. I did not alter the workflow or run it.
+- This remains a dependency spot-check of selected Python files, not a full compile/import test of all 62 Python files. No plugin execution or network endpoint health was claimed.
+
