@@ -233,4 +233,9 @@
 - 新增 `avbox/adult-live.json`（成人直播，4 组列表）。
 - 新增 `avbox/README.md`。
 - 仓库内相对资源引用已替换为 `https://gh-proxy.com/https://raw.githubusercontent.com/LDeom/tvbox/audit/repair-sources-2026-11/...`。
-- 尚未完成所有第三方 API 与频道流的真实播放测试；订阅可解析不代表每条源均可播放。
+- 尚未完成所有第三方 API 与频道流的真实播放测试；订阅可解析不代表每条源均可播放。 
+
+## 2026-11-19 点播空内容排查补充
+
+- 新增 `avbox/vod-verified.json`：最小 type=1 MacCMS API 配置，用于隔离 Spider 依赖。
+- README 已说明重新添加该订阅的步骤与验证边界。
