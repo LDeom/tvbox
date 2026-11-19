@@ -59,3 +59,31 @@ Additional configuration files checked after the first report:
 - `XYQ.json`: the missing-looking `玩偶妹妹.json` reference is in a commented-out source entry, not an active dependency.
 
 These checks cover the principal top-level configurations and selected nested configuration groups, not every one of the repository's JSON files. Strict JSON parsing also rejects some source files that use comments/trailing commas (JSON5-like syntax); those were not rewritten because the consuming parser's exact behavior must be confirmed first.
+
+## Full JSON inventory pass (2026-11-19)
+
+A repository-tree inventory identified **257 JSON/JSON5-named files**. All 257 were retrieved and checked with a strict JSON parser after stripping an optional UTF-8 BOM. This is a syntax screening, not proof that each provider/plugin can load the file.
+
+- The main configuration files and nested config references were checked with their applicable path bases. No confirmed missing local dependency was found in the checked configurations.
+- Important path-base cases:
+  - `tools/dianshi.json` and `tools/jsm.json` resolve their `./...` references from the repository root, not from `tools/`; their 34 and 33 references respectively resolve.
+  - `lib/token.json` resolves its six `./...` resource references from `lib/`; all six targets exist.
+  - `cat/js/config_open.json` has 63 script references; all 63 targets exist under `cat/js/`.
+  - `cat/tjs/open_config.json`, `18_open_config.json`, `18_tv_config.json`, and `tv_config.json` have 34, 10, 10, and 28 local references respectively; all targets exist.
+  - `xiaosa/api.json` has eight local references, all present, including `xiaosa/spider.jar`.
+
+### Strict-parser exceptions requiring runtime-parser confirmation
+
+Strict JSON parsing reports errors in the following files. Most observed errors are consistent with comments or trailing commas/JSON5-like syntax; these are **not automatically classified as unusable** until the parser used by the consuming app/plugin is confirmed.
+
+- Root: `XYQ.json`
+- `XBPQ/`: `bttt.json`, `养生堂.json`
+- `XYQHiker/`: `996影视.json`, `七新影视.json`, `剧圈影视.json`, `可可影视.json`, `哔嘀影视.json`, `巴士动漫.json`, `播视童趣.json`, `来看影视.json`, `河马短剧.json`, `爱你短剧.json`, `玩偶哥哥.json`, `电影港.json`, `短剧屋.json`
+- `xiaosa/XBPQ/`: `养生堂.json`
+- `xiaosa/XYQHiker/`: `BT天堂.json`, `七新影视.json`, `九八影视.json`, `八号影视.json`, `剧圈影视.json`, `巴士动漫.json`, `来看影视.json`, `电影港.json`, `盒子影视.json`, `看看影视.json`, `短剧屋.json`, `骚火影视.json`
+- `xiaosa/json/`: `BSDM.json`, `DYG.json`, `JQYS.json`
+- `json/`: `BSDM.json`, `DYG.json`, `JQYS.json`, `api黑木耳.json`, `dj看球.json`, `dmw.json`, `nmys.json`, `企鹅直播.json`, `厂长影视.json`
+- `FTY/`: `nmys.json`
+- `XYQBiu/`: `网易CC直播.json`
+
+The inventory found **43 strict-parser exceptions**. They are recorded for follow-up; no speculative mass-rewrite or deletion was performed.
