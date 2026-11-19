@@ -589,3 +589,11 @@ GitHub Actions run `44536222364` 已完成，job 和报告上传均为 success�
 - 列表的 `total` 是服务端目录总数，不是有效影视数或可播放数。
 - 本次 GitHub Actions job success 代表检测程序成功执行并上传报告，不代表所有源播放成功。
 - 此次工作流为 push 事件触发；后续工作流也支持手动 `workflow_dispatch`。未修改 master、未删除源、未构建 APK、未发布 Release。
+
+
+### 自动检测脚本分类修订后的复跑（Actions run #2）
+
+- run `44536747205` 已完成，conclusion 为 success，报告 artifact 已上传并读取。
+- 五个源的列表、详情与搜索结果分类和首轮一致：量子/暴风/百度/尤酷搜索命中，索尼搜索仍解析失败；五个详情均有播放地址。
+- 媒体探测状态现按 HTTP 码细分：量子 `not_found`（404）、暴风 `partial_content`（206）、索尼/百度/尤酷 `forbidden_or_hotlink_protected`（403）。这次复跑确认了新分类逻辑正常产出；没有把 403 归为源失效。
+- 工作流 run success 只证明自动检测和报告上传完成。播放器内实播仍未验证。
