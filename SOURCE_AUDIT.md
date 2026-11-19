@@ -284,3 +284,10 @@ Additional endpoints found in `dianshi.json` were checked without querying adult
 - 新增 `avbox/README.md` 说明订阅链接与限制。
 - 重要限制：结构检查、仓库路径存在性检查不等于第三方站点 API 或直播流真实播放验证；不能将全部站点标记为已可播放。TVBox Spider/JAR/JS 源仍可能依赖外部站点状态、登录态、网络环境或本地代理。
 - 本次新增文件位于 `audit/repair-sources-2026-11`，未改 master、未创建 PR、未发布 Release。
+
+## AVBox 点播无内容问题（2026-11-19 追加）
+
+- AVBox 源码确认：点播 `type=1` 走 MacCMS API JSON 分类解析；`type=3` 需要 Spider/JAR/JS 成功加载。
+- 原 `avbox/0825-avbox.json` 首个默认站点为 `豆瓣`（type=3、`searchable=0`），而其余 128 个站点中绝大多数也是 type=3 爬虫；配置解析成功不等于 Spider 可用，可能造成首页无分类/影视。
+- 新增 `avbox/vod-verified.json` 最小排障配置，仅保留一个 type=1 API 站点。2026-11-19 对其 `?ac=list` 观察到接口返回 JSON、分类及影视记录；未完成 AVBox 真机详情和播放验证。
+- 当前仅把这个接口列为「列表接口有响应」，不宣称已验证播放。需要用户在 AVBox 中重新添加该新地址并反馈首页是否出现分类。
