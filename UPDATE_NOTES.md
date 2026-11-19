@@ -167,3 +167,17 @@
 以下地址未能通过当前网页检查服务取得响应：`haiwaikan.com`、`api.kuaifan.tv`、`leshiapi.com`。这只表示当前检查工具未取到数据，不能直接判定源站失效。
 
 本次只确认前四个 API 在检查时返回了列表格式数据；没有验证详情接口、播放地址提取、视频流可达性、地区限制或授权状态。因此没有据此删除任何点播源。
+
+## 普通点播接口第二批抽查（2026-11-19）
+
+从 `dianshi.json` 继续抽查普通点播 API（不查询成人类接口）：
+
+**成功返回列表格式 JSON：**
+- `api.ukuapi.com` 跳转到 `api.ukuapi88.com`，返回 CatVod 列表。
+- `api.apibdzy.com` 返回 CatVod 列表。
+
+**当前网页检查工具无法验证：**
+- `caiji.dyttzyapi.com` 返回 403。
+- `tyyszy.com`、`wolongzyw.com`、`jszyapi.com`、`zy.jinchancaiji.com`、`vs.okcdn100.top` 未能取得响应。
+
+403 或检查工具无法访问不能直接证明源站失效，可能与 UA、地区线路或上游防护有关。没有删除源。返回列表数据也不等于实际播放验证。
