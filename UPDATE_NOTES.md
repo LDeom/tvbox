@@ -297,3 +297,15 @@ A recursive repository tree contains 696 JavaScript files, 62 Python files, and 
 
 This pass checks reference existence and path conventions, not JavaScript execution, Python imports, JAR compatibility, remote website/API availability, or media playback. JAR files are binary and were not modified. No source entries were deleted on this evidence alone.
 
+## Follow-up script syntax spot-check (2026-11-19)
+
+- Reviewed representative configured JavaScript files: `cat/js/dyxs_open.js`, `cat/js/appysv2.js`, `js/drpy.js`, `js/4khdr.js`, `js/678.js`, and `js/茶杯狐.js`; all passed classic-script syntax compilation in the check environment.
+- `lib/drpy2.min.js` uses ES module `import` syntax, so it must be checked with a module-aware parser; a classic-script parser rejection is not evidence of invalid syntax.
+- Other library samples such as `FTY/cheerio.min.js` and `FTY/gbk.js` expose ES module `export` syntax and likewise require module-aware validation.
+- This was a representative spot-check, not a full syntax pass of all 696 JavaScript files. The full repository-wide compile was not completed due to per-file retrieval/tool-call limits.
+- Seven Python plugin files were inspected for headers/import structure. No Python compile or dependency-install test was run; imports such as `requests`, `Crypto`, and the host-provided `base.spider` require runtime-specific availability.
+
+## Corrected online configuration reference
+
+- `cat/js/config_open_online.json` line 68 used `dyxs_openn.js`, while the repository contains `cat/js/dyxs_open.js` and the site key is `dyxs_open`. Updated the API filename to `dyxs_open.js` and verified the target exists in the branch tree.
+
