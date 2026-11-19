@@ -69,7 +69,20 @@ def probe_media(url):
         result = {"status_code": r.status_code, "content_type": r.headers.get("Content-Type", ""),
                   "final_host": urlparse(r.url).netloc}
         r.close()
-        result["status"] = "responded" if r.status_code in (200, 206, 301, 302, 403, 404, 416) else "http_error"
+        if r.status_code == 206:
+            result["status"] = "partial_content"
+        elif r.status_code == 200:
+            result["status"] = "http_ok"
+        elif r.status_code in (301, 302, 307, 308):
+            result["status"] = "redirect_response"
+        elif r.status_code == 403:
+            result["status"] = "forbidden_or_hotlink_protected"
+        elif r.status_code == 404:
+            result["status"] = "not_found"
+        elif r.status_code == 416:
+            result["status"] = "range_not_supported_or_invalid"
+        else:
+            result["status"] = "http_error"
         return result
     except Exception as exc:
         return {"status": "request_error", "error": str(exc)[:240]}
