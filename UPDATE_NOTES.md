@@ -466,3 +466,10 @@ This pass checks reference existence and path conventions, not JavaScript execut
 - Python/JAR 审计 run \`44539853105\`：65 个 Python 文件语法全部通过；7 个 JAR 压缩包完整；39 处 JAR MD5 引用中 37 处匹配，2 处旧值仅出现在构建模板 \`tools/dianshi.json\`、\`tools/jsm.json\`，构建脚本会重新计算 MD5。
 - 各类 URL HTTP 抽样只代表单个地址，不据此删除源。成人配置与疑似成人直播列表未纳入检测。
 - 保持只在 \`audit/repair-sources-2026-11\` 分支工作；未改 master、未删除源、未构建 APK、未发布 Release。
+
+
+## 2026-11-19 — 其他点播 API 扩展抽测与配置格式修复
+
+- 扩展扫描到 25 个额外非成人 MacCMS 风格 API（run \`44541153691\`）：10 个列表接口非空、6 个关键词搜索命中、10 个详情含播放地址。3 个抽样媒体地址返回 HTTP 206；6 个返回 403；2 个返回爱奇艺/优酷网页链接；其余存在 DNS/SSL/超时等异常，均不直接判死。
+- 发现 \`json/dj看球.json\` 在有效 JSON5 配置对象后误拼接 HTML 页面，已在修复分支移除尾随 HTML，保留配置对象；重新扫描验证进行中。
+- 最终 API 扫描已排除带成人指示的域名，不再对这些端点做后续探测。
