@@ -342,3 +342,30 @@ The following playlist files were fetched and inspected for line counts, URL cou
 - The 18+ files `listx.txt` and `livex.m3u` remain separate from ordinary playlists. Their URL reachability and age/access controls were not tested in this static pass.
 - Playlist URL counts do not imply that the endpoints are live, authorized, region-accessible, or playable. No stream was removed on the basis of this static pass.
 
+## Script/runtime dependency audit (2026-11-19)
+
+A recursive repository tree contains 696 JavaScript files, 62 Python files, and 8 JAR files. The main configuration families were checked for local script/JAR references, resolving normal relative paths and the repository's root-relative `tools/` configuration convention.
+
+### Results
+
+- `cat/js/config_open.json`: 70 local script/config references checked; no missing repository targets.
+- `cat/js/config_open99.json`: 91 references checked; `assets://js/...` references are application asset URIs, not repository-relative paths, and were excluded from missing-file checks.
+- `cat/js/config_open99_online.json`: no missing local targets found.
+- `cat/tjs/open_config.json`, `18_open_config.json`, `tv_config.json`, `18_tv_config.json`: no missing local targets found.
+- `xiaosa/api.json`: its local spider JAR and JSON dependencies exist.
+- `jsm.json`, `0821.json`, `dianshi.json`, `9918.json`, `99188.json`: no confirmed missing repository-local script/JAR/JSON dependencies found after parsing compound `$$$` and `;` fields.
+- `tools/dianshi.json` and `tools/jsm.json`: their references are root-relative by project convention; corresponding root-level `jar/`, `lib/`, `js/`, `py/`, and playlist files exist. They are not missing merely because the config file itself is under `tools/`.
+
+### One confirmed suspicious reference
+
+- `cat/js/config_open_online.json` references `dyxs_openn.js`, but the repository contains `cat/js/dyxs_open.js` and no `cat/js/dyxs_openn.js`. This appears to be a filename typo. It was not silently rewritten because the online config may intentionally target a separately hosted or generated asset; confirm intended behavior before changing it.
+
+### Local runtime dependencies (not missing repository files)
+
+- `js.json` and `0825.json` contain entries that point to `http://127.0.0.1:9978/file/TV/4khdr.txt` and `.../hdhive.txt`. These are runtime-local files, not repository-relative files. They will only resolve if the relevant local proxy/server exposes those paths and the files are provisioned.
+- Existing configs also include local proxy endpoints on ports 9978, 10172, and 10199. These require their corresponding runtime services; CDN rewriting cannot satisfy them.
+
+### Validation boundary
+
+This pass checks reference existence and path conventions, not JavaScript execution, Python imports, JAR compatibility, remote website/API availability, or media playback. JAR files are binary and were not modified. No source entries were deleted on this evidence alone.
+
