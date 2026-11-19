@@ -376,3 +376,11 @@ This pass checks reference existence and path conventions, not JavaScript execut
 - 尤酷配置域名发生跳转：`api.ukuapi.com` → `api.ukuapi88.com`，最终响应有非空列表。
 - 索尼结果为 HTML 类型；金蝉返回 502；若干其他普通接口以及本轮成人 API 被检测端报告不可访问。这些仅记为未验证/当前检测端不可达，不据此判定永久失效。
 - 尚未完成详情查询、搜索查询、播放地址解析及媒体流实播。列表 API 有数据不等于 AVBox/TVBox 中一定能播放；没有删除源，也没有构建 APK 或修改 master。
+
+
+## 2026-11-19 — 点播搜索/详情请求受检测通道限制
+
+- 对 5 个列表接口已返回数据的点播源，尝试以 `ac=list&wd=关键词` 查询搜索结果、以 `ac=detail&ids=vod_id` 查询详情；当前网页检测通道对带查询参数的 API 请求返回 URL inaccessible / Internal Error，未获得可解析响应。
+- 量子列表 API 本轮复测仍返回非空 JSON，`code=1`、`list` 有记录且包含 `vod_id`、`vod_name`、`vod_play_from`；`total=164473` 为服务端自报总数，不代表可播放数。
+- 未取得详情中的 `vod_play_url`，也未验证搜索、播放地址和媒体分片。5 个源保持“列表有数据、完整播放链路未验证”，不宣称可播放。
+- 没有修改或删除源，没有构建 APK，也没有修改 master。
