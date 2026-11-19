@@ -73,6 +73,25 @@ def inspect_file(path):
         if not decoded:
             result["parse"] = "decode_error"
             result["error"] = "unsupported or binary text encoding"
+            try:
+                with open(path, "rb") as raw_file:
+                    raw = raw_file.read(32)
+                result["binary_signature_hex"] = raw.hex()
+                result["binary_signature_ascii"] = "".join(chr(b) if 32 <= b < 127 else "." for b in raw)
+                if raw.startswith(b"PK\\x03\\x04"):
+                    result["binary_signature"] = "zip_archive"
+                elif raw.startswith(b"\\x1f\\x8b"):
+                    result["binary_signature"] = "gzip"
+                elif raw.startswith(b"%PDF-"):
+                    result["binary_signature"] = "pdf"
+                elif raw.startswith(b"SQLite format 3\\x00"):
+                    result["binary_signature"] = "sqlite"
+                elif raw.startswith(b"\\x7fELF"):
+                    result["binary_signature"] = "elf"
+                else:
+                    result["binary_signature"] = "unknown_binary_or_custom_encoding"
+            except Exception as exc:
+                result["signature_error"] = str(exc)[:120]
             return result
     except Exception as exc:
         result["parse"] = "read_error"
