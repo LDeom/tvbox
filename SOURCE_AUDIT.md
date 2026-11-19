@@ -135,3 +135,28 @@ Identical blob hashes were grouped; this identifies byte-for-byte copies, not ne
 Examples include the same JS providers mirrored across `FTY/`, `js/`, and `xiaosa/`; identical Python providers across `py/` and `xiaosa/py/`; and identical JSON provider definitions in `json/`, `XBPQ/`, and `xiaosa/`.
 
 These duplicates may be intentional app-profile copies with different relative-path bases or configuration consumers. No duplicate files were deleted. Before deduplication, each consumer's root/path resolution and app-specific compatibility must be confirmed.
+
+## Ordinary playlist structural audit (2026-11-19)
+
+Seven non-adult playlists were re-read and parsed according to their actual formats (M3U URL lines versus comma-separated TXT entries). Counts below are URL entries; duplicate counts are within each file.
+
+| File | URL entries | Unique URLs | Hosts | Structural finding |
+|---|---:|---:|---:|---|
+| `ITV.txt` | 636 | 636 | 1 | One malformed channel row fixed in this branch |
+| `list.m3u` | 824 | 824 | 136 | 824 EXTINF records paired with 824 URL lines |
+| `list.txt` | 202 | 202 | 18 | No malformed URL rows found |
+| `tvboxtv.txt` | 1,391 | 1,391 | 110 | No duplicate URL rows found |
+| `tvlive.txt` | 1,420 | 1,419 | 110 | One URL reused by two channel labels |
+| `radio.m3u` | 1,478 | 1,456 | 111 | 22 repeated URL occurrences |
+| `radio.txt` | 1,478 | 1,456 | 111 | Same 1,456 unique URLs as radio.m3u |
+
+### Concrete repair
+
+In `ITV.txt`, line 560 contained `BesTV-16http://...` without the required comma separator. It was corrected to `BesTV-16,http://...` so the channel name and URL are parseable by comma-separated playlist readers.
+
+### Items flagged, not deleted
+
+- `tvlive.txt` contains the same localhost proxy URL (`127.0.0.1:9978`) under two different channel names. A loopback URL is only reachable on the device running the proxy; whether the target app starts that proxy is unknown. This is flagged for runtime verification, not removed.
+- `radio.m3u` and `radio.txt` each contain 22 repeated URL occurrences. These may be alternate names/entries; no automatic deletion was made.
+- Structural checks do not prove a stream is online, authorized, or playable. HTTP/DNS and playback tests remain outstanding. Earlier rough counts for these files are superseded by the exact format-aware counts in this section.
+- Adult-oriented lists were excluded from this public playlist audit and are not candidates for domestic mirroring.
