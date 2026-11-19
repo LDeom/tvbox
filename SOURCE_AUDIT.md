@@ -172,3 +172,27 @@ Observed endpoints include:
 - `127.0.0.1:10199`: Telegram search/media service.
 
 The repository search did not identify a corresponding server implementation for these ports in the checked tree. They may be provided by the target app, an external companion service, or user-installed local services; this is not proven. Consequently, configs depending on these endpoints may fail when used outside that environment. The references are flagged as runtime prerequisites and were not removed or rewritten.
+
+## Clarification: loopback service ports and VOD API spot checks (2026-11-19)
+
+The previous note grouped all loopback ports as generic "local service" dependencies. This is too broad; the configuration evidence supports the following separation:
+
+- **9978** is used for app-local file/proxy/danmaku endpoints. Documentation for a TVBox implementation describes a local HTTP server that tries ports 9978–9998 and exposes the actual port through `getPort()`. Since this repository's configs hard-code 9978, a port collision may cause those references to miss the active server if the target app uses that dynamic-port behavior. The exact behavior of the user's target player must be confirmed before changing these paths. Reference: https://github.com/digfaq/tvbox/blob/main/docs/%E5%BA%94%E7%94%A8%E5%AE%8C%E6%95%B4%E5%BC%80%E5%8F%91%E6%96%87%E6%A1%A3.md
+- **10079** is configured as a local JSON parse/playback helper in the `playUrl` field for several VOD providers. It is not the same thing as the standard 9978 file/proxy service. No corresponding helper implementation was found in this repository.
+- **10172** is explicitly configured as a local SOCKS5 proxy for selected providers (for example YouTube/TG and a Duboku source). It requires a SOCKS5 listener on the device; this repository does not provide one.
+- **10199** is configured as a local Telegram search/media API for TG provider entries. No matching server implementation was found in this repository.
+
+### Online API endpoint spot checks
+
+Direct requests to the configured public VOD category endpoints returned a structured CatVod-style JSON listing during this check:
+- `https://cj.lziapi.com/api.php/provide/vod`
+- `http://cj.ffzyapi.com/api.php/provide/vod`
+- `https://bfzyapi.com/api.php/provide/vod`
+- `https://suoniapi.com/api.php/provide/vod`
+
+The following endpoints could not be retrieved by the web inspection service in this run:
+- `https://haiwaikan.com/api.php/provide/vod`
+- `https://api.kuaifan.tv/api.php/provide/vod`
+- `https://leshiapi.com/api.php/provide/vod`
+
+An inspection-service retrieval failure is not proof that a provider is offline. These results establish only that the first four API endpoints responded with listing-shaped data at inspection time; they do not verify detail queries, playback URL extraction, media reachability, region access, or user authorization. No provider was deleted based on this limited check.
