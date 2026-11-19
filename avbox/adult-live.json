@@ -1,0 +1,28 @@
+{
+  "lives": [
+    {
+      "name": "初秋语·成人TXT",
+      "type": 0,
+      "url": "https://gh-proxy.com/https://raw.githubusercontent.com/LDeom/tvbox/audit/repair-sources-2026-11/listx.txt",
+      "playerType": 1
+    },
+    {
+      "name": "成人M3U",
+      "type": 0,
+      "url": "https://gh-proxy.com/https://raw.githubusercontent.com/LDeom/tvbox/audit/repair-sources-2026-11/livex.m3u",
+      "playerType": 1
+    },
+    {
+      "name": "ATSUSHI",
+      "type": 0,
+      "url": "https://fongmi.cachefly.net/atsushi444/iptv-epg/main/Adult.m3u",
+      "playerType": 1
+    },
+    {
+      "name": "小武哥",
+      "type": 0,
+      "url": "https://qu.ax/PEHy.txt",
+      "playerType": 1
+    }
+  ]
+}
