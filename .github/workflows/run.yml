@@ -5,11 +5,12 @@ on:
     - cron: "20 5 * * *"
   push:
     branches:
-      - master
+      - audit/repair-sources-2026-11
     paths:
       - "tools/**"
 jobs:
   xiaosa:
+    if: github.ref_name != 'master'
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
@@ -59,6 +60,7 @@ jobs:
             js/
 
   fty:
+    if: github.ref_name != 'master'
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
@@ -92,7 +94,7 @@ jobs:
   git-push:
     needs: [xiaosa, fty]
     runs-on: ubuntu-latest
-    if: always()
+    if: always() && github.ref_name != 'master'
     steps:
       - name: Checkout the branch
         uses: actions/checkout@v7
