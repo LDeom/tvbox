@@ -440,3 +440,11 @@ This pass checks reference existence and path conventions, not JavaScript execut
 - 媒体地址首条 Range 探测：暴风 HTTP 206（HLS Content-Type）；量子 HTTP 404；索尼/百度/尤酷 HTTP 403。403 仅表示当前探测请求受限，不代表源站或 API 失效；量子 404 仅针对抽样的单条播放地址。
 - 脚本已改为区分 206、200、403、404 等探测结果，不再把所有响应统称为 `responded`。更新后的工作流会在后续分支提交时重新运行。
 - 仍未完成播放器内实际播放验证；没有删除源或修改源配置，没有修改 master、构建 APK 或发布 Release。
+
+
+## 2026-11-19 — 点播 API 检测脚本分类修订复跑
+
+- 更新后的检测脚本触发 Actions run `44536747205`，工作流最终 success，报告 artifact 成功生成并读取。
+- 复跑仍确认五个 API 列表非空、五个详情含播放地址；搜索结果为量子/暴风/百度/尤酷命中，索尼解析异常。
+- 媒体探测分类：量子 404、暴风 206、索尼/百度/尤酷 403。403 仍按防盗链/访问受限处理，不判源失效；量子 404 仅代表本次抽样首条媒体地址不可用。
+- 仍未做 TVBox/AVBox 客户端实播验证；未删源、未改 master、未构建 APK、未发布 Release。
