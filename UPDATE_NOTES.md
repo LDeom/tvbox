@@ -239,3 +239,14 @@
 
 - 新增 `avbox/vod-verified.json`：最小 type=1 MacCMS API 配置，用于隔离 Spider 依赖。
 - README 已说明重新添加该订阅的步骤与验证边界。
+
+
+## jsDelivr 下载链路与 18+ 文件标识（2026-11-19）
+
+- 用户在手机浏览器确认可访问修复分支中的 `avbox/vod-verified.json` jsDelivr 地址。
+- AVBox 文档中的普通配置入口改用 jsDelivr URL 格式；不再把用户已测试失败的 GH-Proxy 作为首选下载入口。
+- `avbox/README.md` 已更新，明确普通配置入口与成人配置文件的分类。
+- `avbox/99188-avbox.json` 和 `avbox/adult-live.json` 在说明中统一标记为 **18+**，并与普通配置分开。
+- 本次只确认了一个配置文件在用户设备浏览器中的下载可达性；尚未逐个验证其他文件、内嵌依赖、API、直播流或实际播放。
+- 18+ 仅为内容分级提示，不构成年龄验证或来源授权证明。
+- 未批量改写第三方源地址、未删除源、未将未经确认授权的内容制作成公开镜像；所有文档修改仅在 `audit/repair-sources-2026-11` 分支。
