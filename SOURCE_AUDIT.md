@@ -460,3 +460,18 @@ This pass checks reference existence and path conventions, not JavaScript execut
 - 保留字段结构和源条目，不删除源；相关需要个人登录态的功能须由用户重新填写自己的凭据后使用。
 - 重新读取四份文件并解析 JSON；检查上述目标字段均无残留的非占位长凭据。
 - 此修改只影响当前分支最新文件，不会自动清除 Git 历史、fork、已下载副本或 CDN 缓存中的旧值。建议凭据所有者撤销/轮换旧会话与 Token，并另行评估历史清理。
+
+
+## 点播采集 API 在线响应抽测（2026-11-19）
+
+- 本轮从普通点播配置（含 `0825.json`、`0821.json`、`jsm.json`、`dianshi.json`、`cat/js/config_open*.json`）与成人点播配置（`99188.json`、`9918.json`）抽取直接采集 API 和 `caiji.js` 外部接口进行在线响应检查。
+- 截至本轮，以下 5 个普通点播 API 在检查端返回了可解析的非空 MacCMS 风格 JSON 列表，且 `code=1`、`list` 非空，并包含影视名称、分类、更新时间或播放源字段：
+  - 量子：`https://cj.lziapi.com/api.php/provide/vod/?ac=list`，响应声明总记录 164,440。
+  - 暴风：`https://bfzyapi.com/api.php/provide/vod/?ac=list`，响应声明总记录 173,045。
+  - 尤酷：配置域名 `api.ukuapi.com` 跳转至 `api.ukuapi88.com`；最终响应声明总记录 60,844，列表非空。
+  - 光速：`https://api.guangsuapi.com/api.php/provide/vod/from/gsm3u8`，响应声明总记录 118,691。
+  - 红牛：`https://www.hongniuzy2.com/api.php/provide/vod/from/hnm3u8/`，响应声明总记录 117,937。
+- 另有部分接口在本轮检查端返回无法访问、抓取错误或非 JSON 页面；例如索尼接口返回 HTML 类型结果，金蝉接口返回 502。此类结果只说明当前检测端未取得有效 JSON，不能直接判定源永久失效，可能涉及反爬、地区限制、TLS、CDN 或检测端限制。
+- 成人点播配置中的直接 API 本轮均未能通过当前检查端取得可解析的非空数据响应；多数请求被检测端报告为 URL 不可访问。该结果标记为“未验证/检测端不可达”，不标记为失效，也未删除或修改任何成人源。
+- 重要边界：本轮验证的是采集接口的列表响应，不是播放器端完整搜索、详情、播放地址解析和媒体流播放。对量子、暴风、尤酷、光速、红牛的详情查询 URL，本检测端无法抓取，因此尚不能宣称这些源已经可播放；后续需在 AVBox/TVBox 兼容环境中验证搜索、详情、播放地址和实际媒体请求。
+- 接口返回的 `total` 是服务端自报记录数，不是仓库内独立可用影视数；未据此计算可用源总数。没有因单次网络错误而删除任何源。
