@@ -512,3 +512,8 @@ This pass checks reference existence and path conventions, not JavaScript execut
 - 同一 API 在多份配置中重复出现，统计可用源时应按 API URL 去重，不能把配置条目数当成独立源数。
 
 本轮没有删除或改写源条目，没有更改 master，没有构建 APK。检测结果属于 2026-11-19 的时间点快照，源状态可能变化。
+
+
+### 18+ 点播 API 抽样补测
+
+对成人配置中的 `lbapi9.com`、`apilj.com`、`api.maozyapi.com`、`apittzy.com`、`kkzy.me` 列表端点尝试读取公开响应，检测通道均返回不可访问/内部错误，未取得响应体。此结果仅代表本检测通道无法读取，不能据此判定 API 失效或无影视数据；需用真实客户端/可执行 HTTP 请求环境复测。
