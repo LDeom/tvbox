@@ -428,3 +428,16 @@ This pass checks reference existence and path conventions, not JavaScript execut
 - 覆盖：`cat/js/` 下四份普通/18+配置、`cat/tjs/` 下四份普通/18+配置，以及 `xiaosa/api.json`、`jsm.json`、`js.json`、`0825.json`、`0821.json`、`dianshi.json`、`tools/dianshi.json`、`tools/jsm.json`、`99188.json`、`9918.json`、`fty.json`。
 - 按上述规则解析到的本地 JS 引用均能在仓库文件树中找到；本轮未发现缺失的本地 JS 目标。配置内的 `assets://`、HTTP(S) URL、`csp_*` 等播放器资产 URI、远程或运行时标识不作为仓库本地文件缺失处理。
 - 这是一项配置到文件路径的静态存在性检查，不验证远程 API 是否在线、不验证播放器运行时能否加载，也不代表 696 个 JS 文件都被引用。未引用脚本需要结合插件入口、动态加载、外部配置及运行时约定继续判定，不能直接删除。
+
+
+## 主配置外部主机与本地服务依赖盘点（2026-11-19）
+
+- 对 19 份主要配置提取 URL，识别到 309 个不同主机名，累计 1,124 次 HTTP(S) URL 出现；其中 HTTPS 845 次、HTTP 279 次。出现次数是配置字符串统计，不代表独立服务数或可用率。
+- 共识别 71 次指向 `127.0.0.1` 的本地服务 URL，涉及 9 份配置。主要依赖如下：
+  - `127.0.0.1:9978/proxy?do=wallpaper`、`...danmaku...`：壁纸/弹幕代理。
+  - `127.0.0.1:9978/file/TVBox/bili_cookie.txt`：B站 Cookie 文件。
+  - `127.0.0.1:9978/file/TV/4khdr.txt`、`hdhive.txt`、`quark.txt`：本地扩展源文件。
+  - `127.0.0.1:10079/parse/...`：本地解析服务，含普通及 proxy 参数模式。
+- 这些地址是客户端本机服务依赖，不是公共服务器地址；如果 AVBox/盒子运行环境没有启动对应端口和文件，相关功能会失败。不能将其替换成仓库 CDN，因为服务行为和用户私有 Cookie/文件不同。
+- 另发现 `0821.json` 中有 10 次 `gh-proxy.net` 外部 GitHub 资源引用，`fty.json` 有 1 次 `ghproxy.net` 外部播放列表引用。它们不指向本仓库，且本轮未对其目标内容、授权及国内网络连通性作实测；不自动改写或宣称可用。
+- 本轮不对 309 个外部主机做批量删除或替换。域名出现次数、HTTP/HTTPS 协议及静态字符串都不能证明源失效；需要逐接口检测响应结构、地区可达性和播放器兼容性后再作结论。
