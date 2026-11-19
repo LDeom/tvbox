@@ -15,7 +15,7 @@ ROOT = os.getcwd()
 SKIP_PARTS = {".git", ".github", "node_modules", "cat/js", "cat/dist", "cat/18_dist"}
 SKIP_RE = re.compile(r"(^|/)(adult|18\+|18_dist|adult-live|18_open_config|18_tv_config|pikpakclass18|9918|99188)(/|\.|-|$)", re.I)
 EXTS = {".json", ".txt", ".m3u", ".m3u8"}
-URL_RE = re.compile(r"(?:https?|rtsp|rtmp|rtp|udp)://[^\s"'<>\\]+", re.I)
+URL_RE = re.compile(r'(?:https?|rtsp|rtmp|rtp|udp)://[^\s"\'<>\\]+', re.I)
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/120 Safari/537.36",
     "Accept": "*/*",
