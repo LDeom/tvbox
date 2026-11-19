@@ -390,3 +390,16 @@ This pass checks reference existence and path conventions, not JavaScript execut
 - The workflow is configured to trigger on pushes to `master` affecting `tools/**` (as well as manual/scheduled runs). Its final `git-push` job executes `git push -f origin master`. This force-push behavior can overwrite concurrent master history; it is an operational risk worth reviewing. I did not alter the workflow or run it.
 - This remains a dependency spot-check of selected Python files, not a full compile/import test of all 62 Python files. No plugin execution or network endpoint health was claimed.
 
+
+
+## 自动更新工作流安全性复核与修复（2026-11-19）
+
+- 复核 `.github/workflows/run.yml`：原 `git-push` job 在生成文件后执行 `git push -f origin master`，会对 master 执行强制推送；若远端 master 在工作流 checkout 后出现新提交，强推可能覆盖远端历史。
+- 已改为 `git push origin "HEAD:${GITHUB_REF_NAME}"`：推送当前工作流触发分支，不再硬编码 master，也不再使用 force push。普通非快进冲突会安全失败，不会覆盖远端历史。
+- 工作流本身未运行；没有触发源抓取、没有生成新源文件，也没有对 master 执行推送。
+
+## Python 静态依赖审计边界补充（2026-11-19）
+
+- 仓库树中共 62 个 Python 文件；此前完整静态 import 扫描记录已列于上文。当前可确认的第三方依赖类别包括 `requests`、`Crypto`（PyCryptodome）、`bs4`、`pyquery`、`urllib3` 和 `cryptography`。
+- 工作流工具任务明确安装 `demjson3`、`pycryptodome`、`requests`；插件脚本中的 `pyquery` 和 `cryptography` 是否由目标播放器运行时提供，仍需在目标环境验证，不在此处擅自加入全局依赖安装。
+- 本次未执行 62 个脚本的 Python 编译或运行，也未对外部 API 做全量探测；静态 import 结果不能替代运行时兼容性测试。
