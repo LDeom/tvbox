@@ -456,3 +456,13 @@ This pass checks reference existence and path conventions, not JavaScript execut
 - 盘点修复分支共 299 个 JSON/TXT/M3U/M3U8 配置/播放列表文件。
 - 新增只读扫描脚本 `audit/repository_source_audit.py` 和 GitHub Actions 工作流，检查文件结构、提取 URL 并抽样探测；成人路径排除。扫描结果待 artifact 完成后补录。
 - 不修改原有源配置，不删除源，不触碰 master，不构建 APK，不发布 Release。
+
+
+## 2026-11-19 — 非成人配置、JS、Python 与 JAR 分层审计
+
+- 仓库配置扫描 run \`44539613860\`：纳入 287 个非成人 JSON/TXT/M3U/M3U8 文件；208 个严格 JSON 有效、42 个 JSON5/JSONC 可解析、1 个 \`json/dj看球.json\` 在配置对象后附带 HTML、1 个 \`jar/fan.txt\` 编码无法识别。未删除或改写异常文件。
+- 直播/电台播放列表已提取 URL 数：ITV 637、list.m3u 851、listx.m3u 25,814、radio.m3u 1,456；多个运营商直播列表含 RTSP 私网地址，不能在公网判定失效。
+- JS 源审计 run \`44539178933\`：569 个非成人 JS 文件全部通过语法检查；识别并解码 5 个 Base64/gzip+Base64 封装脚本后均通过。
+- Python/JAR 审计 run \`44539853105\`：65 个 Python 文件语法全部通过；7 个 JAR 压缩包完整；39 处 JAR MD5 引用中 37 处匹配，2 处旧值仅出现在构建模板 \`tools/dianshi.json\`、\`tools/jsm.json\`，构建脚本会重新计算 MD5。
+- 各类 URL HTTP 抽样只代表单个地址，不据此删除源。成人配置与疑似成人直播列表未纳入检测。
+- 保持只在 \`audit/repair-sources-2026-11\` 分支工作；未改 master、未删除源、未构建 APK、未发布 Release。
