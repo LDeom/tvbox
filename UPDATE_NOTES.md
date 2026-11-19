@@ -448,3 +448,11 @@ This pass checks reference existence and path conventions, not JavaScript execut
 - 复跑仍确认五个 API 列表非空、五个详情含播放地址；搜索结果为量子/暴风/百度/尤酷命中，索尼解析异常。
 - 媒体探测分类：量子 404、暴风 206、索尼/百度/尤酷 403。403 仍按防盗链/访问受限处理，不判源失效；量子 404 仅代表本次抽样首条媒体地址不可用。
 - 仍未做 TVBox/AVBox 客户端实播验证；未删源、未改 master、未构建 APK、未发布 Release。
+
+
+## 2026-11-19 — 点播多详情抽测与全仓配置文件扫描启动
+
+- 第三轮普通点播 API 抽测（Actions run `44537173678`）成功：五个源各抽取 5 个详情，详情均含播放地址（25/25）。量子媒体线路混合 200/206/404；暴风本轮抽样 URL 返回 404；索尼、百度、尤酷 403，API Referer 重试未改变结果。不能将单条媒体地址异常等同于 API 失效。
+- 盘点修复分支共 299 个 JSON/TXT/M3U/M3U8 配置/播放列表文件。
+- 新增只读扫描脚本 `audit/repository_source_audit.py` 和 GitHub Actions 工作流，检查文件结构、提取 URL 并抽样探测；成人路径排除。扫描结果待 artifact 完成后补录。
+- 不修改原有源配置，不删除源，不触碰 master，不构建 APK，不发布 Release。
