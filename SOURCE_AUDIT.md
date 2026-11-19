@@ -441,3 +441,13 @@ This pass checks reference existence and path conventions, not JavaScript execut
 - 这些地址是客户端本机服务依赖，不是公共服务器地址；如果 AVBox/盒子运行环境没有启动对应端口和文件，相关功能会失败。不能将其替换成仓库 CDN，因为服务行为和用户私有 Cookie/文件不同。
 - 另发现 `0821.json` 中有 10 次 `gh-proxy.net` 外部 GitHub 资源引用，`fty.json` 有 1 次 `ghproxy.net` 外部播放列表引用。它们不指向本仓库，且本轮未对其目标内容、授权及国内网络连通性作实测；不自动改写或宣称可用。
 - 本轮不对 309 个外部主机做批量删除或替换。域名出现次数、HTTP/HTTPS 协议及静态字符串都不能证明源失效；需要逐接口检测响应结构、地区可达性和播放器兼容性后再作结论。
+
+
+## 凭据字段暴露风险审计（2026-11-19，敏感值已脱敏）
+
+- 在公开配置中发现疑似真实会话凭据：
+  - `cat/js/config_open.json` 与 `cat/js/config_open_online.json`：哔哩、哔哩直播两个条目含非占位 Cookie。
+  - `cat/tjs/open_config.json` 与 `cat/tjs/tv_config.json`：gitcafe、changzhang、aliyunpanshare、alipansou、pan_search、wogg 条目含非占位 `aliToken` / `quarkCookie`；bilibili 条目含非占位 Cookie。
+- `xiaosa/api.json`、`jsm.json`、`dianshi.json` 中另有固定 `sign` / `buildSignature` 字段。本轮仅标记为凭据样式值，尚未确认是否为个人秘密、公共接口签名或静态协议常量，不擅自删除。
+- 配置中的敏感值没有复制进审计报告或更新日志。上述值已进入公开仓库历史，单纯改当前文件不能清除 Git 历史；建议凭据所有者撤销/轮换旧会话与 Token，并评估清理公开 Git 历史及 CDN 缓存。
+- 本轮尚未改写这些配置字段，避免未经确认就清空用户 Cookie/Token 导致源功能失效。待确认后可将公开配置改为用户自行填写的占位值；不能替用户撤销第三方账号会话。
