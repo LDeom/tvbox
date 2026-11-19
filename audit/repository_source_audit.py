@@ -18,12 +18,12 @@ HEADERS = {
     "User-Agent": "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/120 Safari/537.36",
     "Accept": "*/*",
 }
-TIMEOUT = (5, 8)
+TIMEOUT = (3, 5)
 SESSION = requests.Session()
 SESSION.headers.update(HEADERS)
 MAX_FILES = 400
 MAX_URLS_PER_FILE = 3
-MAX_PROBES = 250
+MAX_PROBES = 120
 
 
 def skipped(path):
