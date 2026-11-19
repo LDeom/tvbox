@@ -160,3 +160,15 @@ In `ITV.txt`, line 560 contained `BesTV-16http://...` without the required comma
 - `radio.m3u` and `radio.txt` each contain 22 repeated URL occurrences. These may be alternate names/entries; no automatic deletion was made.
 - Structural checks do not prove a stream is online, authorized, or playable. HTTP/DNS and playback tests remain outstanding. Earlier rough counts for these files are superseded by the exact format-aware counts in this section.
 - Adult-oriented lists were excluded from this public playlist audit and are not candidates for domestic mirroring.
+
+## Localhost service dependency review (2026-11-19)
+
+The primary configs `js.json`, `0825.json`, `dianshi.json`, `xiaosa/api.json`, `9918.json`, and `99188.json` contain loopback references. These are not public source URLs and must not be replaced with public mirrors without understanding the app's local service contract.
+
+Observed endpoints include:
+- `127.0.0.1:9978`: proxy, local files, danmaku, wallpaper, cookies, and playlist text files.
+- `127.0.0.1:10079`: JSON playback parser endpoints.
+- `127.0.0.1:10172`: SOCKS5 proxy.
+- `127.0.0.1:10199`: Telegram search/media service.
+
+The repository search did not identify a corresponding server implementation for these ports in the checked tree. They may be provided by the target app, an external companion service, or user-installed local services; this is not proven. Consequently, configs depending on these endpoints may fail when used outside that environment. The references are flagged as runtime prerequisites and were not removed or rewritten.
