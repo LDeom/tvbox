@@ -355,3 +355,10 @@ This pass checks reference existence and path conventions, not JavaScript execut
 - 识别到 71 次 localhost/127.0.0.1 服务引用：9978 端口承担壁纸、弹幕、Cookie 和本地扩展文件；10079 端口承担本地解析服务。
 - `0821.json` 有 10 次 `gh-proxy.net` 引用，`fty.json` 有 1 次 `ghproxy.net` 引用；均为第三方资源，本轮未验证可达性或授权，未改写。
 - 未将静态主机清单当作在线检测结果，不因协议为 HTTP 或暂时不可访问而删除源。
+
+
+## 2026-11-19 — 凭据暴露风险提示（值已脱敏）
+
+- 在公开配置中发现非占位 B站 Cookie、阿里云盘 Token、夸克 Cookie，涉及 `cat/js/` 与 `cat/tjs/` 的普通配置及 TV 配置。
+- `xiaosa/api.json`、`jsm.json`、`dianshi.json` 还包含固定签名样式字段，尚未确认是否属于个人凭据，暂不改动。
+- 敏感值未写入本日志。本轮未清空配置字段，以免破坏用户依赖；建议所有者撤销/轮换凭据。修改当前文件无法自动清除 Git 历史或外部缓存。
