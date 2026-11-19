@@ -48,26 +48,34 @@ def get_list(payload):
     return []
 
 
-def playable_url(record):
+def playable_urls(record):
+    """Return up to two distinct HTTP(S) episode URLs across all MacCMS play lines."""
     raw = str(record.get("vod_play_url") or "").strip()
-    if not raw:
-        return ""
-    # MacCMS commonly uses line separator $$ and episode separator #.
-    first_line = raw.split("$$", 1)[0]
-    first_item = first_line.split("#", 1)[0]
-    if "$" in first_item:
-        first_item = first_item.rsplit("$", 1)[-1]
-    return first_item.strip()
+    found = []
+    for source_line in raw.split("$$$"):
+        for episode in source_line.split("#"):
+            item = episode.strip()
+            if "$" in item:
+                item = item.rsplit("$", 1)[-1].strip()
+            if item.startswith(("http://", "https://")) and item not in found:
+                found.append(item)
+            if len(found) >= 2:
+                return found
+    return found
 
 
-def probe_media(url):
+def probe_media(url, referer=""):
     if not url.startswith(("http://", "https://")):
         return {"status": "not_http_url", "url_scheme": urlparse(url).scheme}
+    headers = {"Range": "bytes=0-0"}
+    if referer:
+        headers["Referer"] = referer
     try:
-        r = SESSION.get(url, headers={"Range": "bytes=0-0"}, stream=True,
+        r = SESSION.get(url, headers=headers, stream=True,
                         timeout=TIMEOUT, allow_redirects=True)
         result = {"status_code": r.status_code, "content_type": r.headers.get("Content-Type", ""),
-                  "final_host": urlparse(r.url).netloc}
+                  "final_host": urlparse(r.url).netloc,
+                  "referer_tested": bool(referer)}
         r.close()
         if r.status_code == 206:
             result["status"] = "partial_content"
@@ -85,13 +93,15 @@ def probe_media(url):
             result["status"] = "http_error"
         return result
     except Exception as exc:
-        return {"status": "request_error", "error": str(exc)[:240]}
+        return {"status": "request_error", "error": str(exc)[:240],
+                "referer_tested": bool(referer)}
 
 
 def test_source(name, api):
     result = {"name": name, "api": api, "list": {}, "search": {}, "detail": {},
-              "media_probe": {"status": "not_attempted"}}
+              "media_probes": []}
     base = api.split("?", 1)[0]
+    api_origin = "{0}://{1}/".format(urlparse(base).scheme, urlparse(base).netloc)
     try:
         r, payload = request_json(base, {"ac": "list"})
         records = get_list(payload)
@@ -108,50 +118,65 @@ def test_source(name, api):
             return result
         result["list"]["status"] = "nonempty"
 
+        search_records = []
         try:
             sr, sp = request_json(base, {"ac": "list", "wd": SEARCH_KEYWORD})
-            srecords = get_list(sp)
+            search_records = get_list(sp)
             result["search"] = {"status_code": sr.status_code,
-                                "count": len(srecords),
+                                "count": len(search_records),
                                 "keyword": SEARCH_KEYWORD,
-                                "status": "matched" if srecords else "empty"}
+                                "status": "matched" if search_records else "empty"}
         except Exception as exc:
             result["search"] = {"status": "request_or_parse_error", "error": str(exc)[:240]}
 
-        # Check up to five real IDs from the live list; stop after a detail has play URLs.
-        detail_errors = []
-        for item in records[:5]:
+        # Try several real IDs, preferring keyword hits, rather than stopping at one detail.
+        detail_records = []
+        seen_ids = set()
+        candidates = search_records + records
+        for item in candidates:
             vid = item.get("vod_id")
-            if vid is None:
+            if vid is None or str(vid) in seen_ids:
                 continue
+            seen_ids.add(str(vid))
+            if len(seen_ids) >= 5:
+                break
+        for vid in seen_ids:
             try:
-                dr, dp = request_json(base, {"ac": "detail", "ids": str(vid)})
+                dr, dp = request_json(base, {"ac": "detail", "ids": vid})
                 drecords = get_list(dp)
                 chosen = drecords[0] if drecords else {}
-                play = str(chosen.get("vod_play_url") or "").strip()
-                result["detail"] = {
-                    "status_code": dr.status_code, "vod_id": str(vid),
+                urls = playable_urls(chosen) if chosen else []
+                detail_records.append({
+                    "vod_id": vid, "status_code": dr.status_code,
                     "count": len(drecords),
-                    "status": "has_play_url" if play else ("detail_without_play_url" if drecords else "empty_detail"),
-                    "fields": sorted(chosen.keys()) if chosen else [],
+                    "status": "has_play_url" if urls else ("detail_without_play_url" if drecords else "empty_detail"),
                     "play_from": chosen.get("vod_play_from"),
-                    "play_url_present": bool(play),
-                    "play_url_length": len(play),
-                }
-                if play:
-                    media = playable_url(chosen)
-                    result["media_probe"] = probe_media(media) if media else {"status": "no_extractable_url"}
-                    break
+                    "play_url_present": bool(urls),
+                    "candidate_url_count": len(urls),
+                })
+                for media_url in urls:
+                    if len(result["media_probes"]) >= 10:
+                        break
+                    probe = probe_media(media_url)
+                    probe["vod_id"] = vid
+                    if probe.get("status") == "forbidden_or_hotlink_protected":
+                        retry = probe_media(media_url, api_origin)
+                        retry["vod_id"] = vid
+                        retry["referer_retry"] = True
+                        result["media_probes"].append({"initial": probe, "referer_retry": retry})
+                    else:
+                        result["media_probes"].append(probe)
             except Exception as exc:
-                detail_errors.append({"vod_id": str(vid), "error": str(exc)[:200]})
-        if not result["detail"]:
-            result["detail"] = {"status": "no_vod_id_in_sample", "errors": detail_errors}
-        elif detail_errors:
-            result["detail"]["earlier_errors"] = detail_errors
+                detail_records.append({"vod_id": vid, "status": "request_or_parse_error",
+                                       "error": str(exc)[:200]})
+        result["detail"] = {
+            "attempted": len(detail_records),
+            "has_play_url": sum(1 for d in detail_records if d.get("play_url_present")),
+            "records": detail_records,
+        }
     except Exception as exc:
         result["list"] = {"status": "request_or_parse_error", "error": str(exc)[:300]}
     return result
-
 
 def main():
     report = {
@@ -168,8 +193,8 @@ def main():
     for item in report["results"]:
         print("{} | list={} | search={} | detail={} | media={}".format(
             item["name"], item["list"].get("status"),
-            item["search"].get("status"), item["detail"].get("status"),
-            item["media_probe"].get("status")))
+            item["search"].get("status"), item["detail"].get("has_play_url"),
+            len(item["media_probes"])))
     print("Report written: vod-api-audit-report.json")
     # The report is useful even if individual providers time out.
     return 0
