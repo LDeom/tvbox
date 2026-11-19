@@ -556,3 +556,12 @@ This pass checks reference existence and path conventions, not JavaScript execut
 - 对尤酷详情 `ac=detail&ids=75947`、索尼详情 `ac=detail&ids=155832` 及尤酷关键词搜索请求，当前网页检测通道均拒绝带查询参数 URL，未取得响应正文。此为检测通道限制，不可判定接口失效或不支持查询。
 - 当前已确认返回非空列表的普通点播 API 去重计数仍为 5 个：量子、暴风、索尼、百度、尤酷（尤酷为本轮恢复确认）。详情、播放地址与媒体流仍未验证。
 - 本轮未修改配置、未删除源、未修改 master、未构建 APK。
+
+
+## 普通点播详情链路自动化检测工具（2026-11-19）
+
+- 新增只读脚本 `audit/vod_api_audit.py`，仅检测量子、暴风、索尼、百度、尤酷五个普通点播 API，不读取或请求 18+ 源。
+- 脚本按顺序请求列表、关键词搜索（`流浪地球`）、从实时列表选取最多 5 个真实 `vod_id` 请求详情；如详情返回 `vod_play_url`，仅提取首条媒体地址并发送 Range 0-0 请求检查响应，不下载完整媒体。
+- 新增 GitHub Actions 工作流 `.github/workflows/vod-api-audit.yml`，支持手动触发，运行后上传 `ordinary-vod-api-audit` JSON 报告（保留 14 天）。工作流权限仅 `contents: read`，不会写回仓库或修改源配置。
+- 本环境没有外部 DNS/HTTP 访问能力，GitHub 连接器也没有 workflow_dispatch 写操作；工作流文件已提交，但本轮尚未实际运行，故尚无搜索/详情/媒体结果。需在 GitHub Actions 页面手动运行后读取报告，不能把“已创建检测工作流”表述成“已通过检测”。
+- 脚本和工作流仅位于 `audit/repair-sources-2026-11` 分支；未构建 APK、未改 master、未删除或改写源配置。
