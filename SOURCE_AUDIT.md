@@ -297,3 +297,19 @@ Additional endpoints found in `dianshi.json` were checked without querying adult
 - GH-Proxy 官网公告显示业务域名已统一为 `gh-proxy.org`，因此 AVBox 配置文件及 README 中原 `gh-proxy.com` 的仓库文件代理链接已更新为 `gh-proxy.org`。
 - 当前排障订阅地址请使用 `https://gh-proxy.org/https://raw.githubusercontent.com/LDeom/tvbox/audit/repair-sources-2026-11/avbox/vod-verified.json`。
 - 这次更新只调整 GitHub 文件代理域名；尚不能替代用户设备上的实际下载验证。
+
+## Whole-repository inventory and AVBox dependency transport repair (2026-11-19)
+
+A recursive Git tree scan of the working branch completed without truncation. It contains 1,108 tracked files: 262 JSON, 696 JavaScript, 62 Python, 32 TXT, 5 M3U, 8 JAR, 9 GZ, 10 MD5, 10 Markdown, plus image/config files. This is a repository inventory, not proof that every provider is active or usable.
+
+The four AVBox entry configurations were then updated to use the jsDelivr URL format already confirmed reachable on the user's device. Only URLs that pointed to files in `LDeom/tvbox` on branch `audit/repair-sources-2026-11` were rewritten; third-party provider URLs, local proxy endpoints, and other external dependencies were preserved.
+
+- `avbox/0825-avbox.json`: 169 repository-file references changed.
+- `avbox/99188-avbox.json` (18+): 37 repository-file references changed.
+- `avbox/live.json`: 5 repository-file references changed.
+- `avbox/adult-live.json` (18+): 2 repository-file references changed.
+
+All four updated files were parsed successfully as JSON after the rewrite. A follow-up read confirmed zero remaining `gh-proxy.org`, `gh-proxy.com`, or `raw.githubusercontent.com/LDeom/tvbox` references in these four AVBox files. They now contain 213 jsDelivr references in total. This validates JSON syntax and URL rewriting only; it does not prove that every linked dependency, third-party API, or media stream loads or plays on the target device.
+
+The full repository still requires per-entry runtime checks and rights-aware classification. No source was deleted based solely on a static or transient network failure. No master-branch changes, pull request, or Release were made.
+
