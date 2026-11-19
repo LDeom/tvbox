@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Read-only repository source inventory and lightweight endpoint smoke tests."""
 import json
+import ipaddress
 import os
 import re
 import time
@@ -14,7 +15,7 @@ ROOT = os.getcwd()
 SKIP_PARTS = {".git", ".github", "node_modules", "cat/js", "cat/dist", "cat/18_dist"}
 SKIP_RE = re.compile(r"(^|/)(adult|18\+|18_dist|adult-live|18_open_config|18_tv_config|pikpakclass18|9918|99188)(/|\.|-|$)", re.I)
 EXTS = {".json", ".txt", ".m3u", ".m3u8"}
-URL_RE = re.compile(r"https?://[^\s\"'<>\\]+", re.I)
+URL_RE = re.compile(r"(?:https?|rtsp|rtmp|rtp|udp)://[^\s"'<>\\]+", re.I)
 HEADERS = {
     "User-Agent": "Mozilla/5.0 (Linux; Android 14) AppleWebKit/537.36 Chrome/120 Safari/537.36",
     "Accept": "*/*",
@@ -30,6 +31,8 @@ MAX_PROBES = 120
 def skipped(path):
     p = path.replace("\\", "/")
     if SKIP_RE.search(p):
+        return True
+    if os.path.basename(p).lower() == "livex.m3u":
         return True
     return any(p == part or p.startswith(part + "/") for part in SKIP_PARTS)
 
@@ -110,7 +113,16 @@ def inspect_file(path):
 
 
 def probe(url):
+    parsed = urlparse(url)
+    if parsed.scheme.lower() not in ("http", "https"):
+        return {"url": url, "status": "non_http_protocol_not_probed", "scheme": parsed.scheme}
     try:
+        try:
+            ip = ipaddress.ip_address(parsed.hostname)
+            if ip.is_private or ip.is_loopback or ip.is_link_local:
+                return {"url": url, "status": "private_network_endpoint_not_probed", "host": parsed.hostname}
+        except ValueError:
+            pass
         r = SESSION.get(url, headers={"Range": "bytes=0-0"}, stream=True,
                         timeout=TIMEOUT, allow_redirects=True)
         out = {"status_code": r.status_code, "final_host": urlparse(r.url).netloc,
@@ -168,6 +180,8 @@ def main():
         "restricted": sum(1 for x in report["results"] for p in x["probes"] if p["status"] == "access_restricted"),
         "not_found": sum(1 for x in report["results"] for p in x["probes"] if p["status"] == "not_found"),
         "request_errors": sum(1 for x in report["results"] for p in x["probes"] if p["status"] == "request_error"),
+        "non_http_protocols": sum(1 for x in report["results"] for p in x["probes"] if p["status"] == "non_http_protocol_not_probed"),
+        "private_network_endpoints": sum(1 for x in report["results"] for p in x["probes"] if p["status"] == "private_network_endpoint_not_probed"),
     }
     with open("repository-source-audit-report.json", "w", encoding="utf-8") as f:
         json.dump(report, f, ensure_ascii=False, indent=2)
