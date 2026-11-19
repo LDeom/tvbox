@@ -546,3 +546,13 @@ This pass checks reference existence and path conventions, not JavaScript execut
 - 本轮未能取得搜索/详情查询的有效正文。不得将 `vod_play_from` 当成播放 URL；详情中的 `vod_play_url` 与媒体流仍待验证。
 - 百度和量子列表响应可证明采集 API 在当前时间点提供影视目录数据，但不能证明播放器完整链路或所有条目都可播放。
 - 本轮只检查普通点播；未更改配置、未删除源、未修改 master、未构建 APK。
+
+
+## 普通点播 API 复测补充：尤酷重新确认（2026-11-19）
+
+- 尤酷配置 API `https://api.ukuapi.com/api.php/provide/vod/?ac=list` 重定向至 `https://api.ukuapi88.com/api.php/provide/vod/?ac=list`，本轮重新取得合法 JSON：`code=1`、`total=60854`、`list` 非空，记录含 `vod_id`、`vod_name`、`type_name`、`vod_play_from`。
+- 本轮返回的列表样本中 `vod_play_url` 为空；列表接口只证明目录数据可取，不能证明详情/播放。
+- 索尼 `https://suoniapi.com/api.php/provide/vod/?ac=list` 本轮再次取得合法 JSON：`code=1`、`total=149351`、非空列表。响应头为 text/html，但正文可解析为 JSON，播放器对 Content-Type 的兼容性仍需验证。
+- 对尤酷详情 `ac=detail&ids=75947`、索尼详情 `ac=detail&ids=155832` 及尤酷关键词搜索请求，当前网页检测通道均拒绝带查询参数 URL，未取得响应正文。此为检测通道限制，不可判定接口失效或不支持查询。
+- 当前已确认返回非空列表的普通点播 API 去重计数仍为 5 个：量子、暴风、索尼、百度、尤酷（尤酷为本轮恢复确认）。详情、播放地址与媒体流仍未验证。
+- 本轮未修改配置、未删除源、未修改 master、未构建 APK。
