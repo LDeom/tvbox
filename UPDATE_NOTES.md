@@ -393,3 +393,6 @@ This pass checks reference existence and path conventions, not JavaScript execut
 - 尤酷为此前曾通过、本轮未重新确认；其他被检测通道拦截的接口不判定为失效。
 - 搜索与详情请求仍受检测通道限制，尚未验证 `vod_play_url` 和真实媒体播放，因此这三个接口只标记“列表数据有效”，不标记“完整可播放”。
 - 未删除源、未修改 master、未构建 APK。
+
+
+- 成人点播抽样补测：lbapi9、apilj、maozyapi、apittzy、kkzy 五个 API 的网页检测请求均未取得响应体，全部保持“未验证”，不标记失效。
