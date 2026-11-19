@@ -333,3 +333,10 @@ This pass checks reference existence and path conventions, not JavaScript execut
 - 修正此前仅使用 `GITHUB_REF_NAME` 作为推送目标仍可能触及 master 的问题：GitHub schedule 默认在仓库默认分支运行，手动 dispatch 也可能从 master 发起。
 - push 触发器现限定为 `audit/repair-sources-2026-11`；三个 job 均跳过 master 上的运行；审计分支触发时只向当前分支进行普通（非 force）推送。
 - 未执行工作流、未抓取外部源、未修改 master。需要后续受控验证 Actions runner 的实际执行结果。
+
+
+## 2026-11-19 — JavaScript 重复内容盘点
+
+- 完整仓库树统计 696 个 JS 文件，按 Git blob SHA 得到 644 个不同内容对象；46 组文件内容字节级相同，涉及 98 个路径。
+- 重复副本可能被不同配置按路径引用，因此本轮只登记、不删除、不合并。
+- 尚未完成 696 个 JS 文件逐文件语法解析；少量样本检查不能代表全量通过。
