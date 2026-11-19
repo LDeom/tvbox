@@ -517,3 +517,22 @@ This pass checks reference existence and path conventions, not JavaScript execut
 ### 18+ 点播 API 抽样补测
 
 对成人配置中的 `lbapi9.com`、`apilj.com`、`api.maozyapi.com`、`apittzy.com`、`kkzy.me` 列表端点尝试读取公开响应，检测通道均返回不可访问/内部错误，未取得响应体。此结果仅代表本检测通道无法读取，不能据此判定 API 失效或无影视数据；需用真实客户端/可执行 HTTP 请求环境复测。
+
+
+## 普通点播 API 扩展复测（2026-11-19）
+
+本轮按普通点播配置中的唯一 API 端点继续抽测，不包含任何 18+ 配置。新增确认：
+
+| API | 响应内容 | 结论 |
+|---|---|---|
+| 百度 `api.apibdzy.com` | JSON，`code=1`，`total=49763`，`list` 非空；记录含 `vod_id`、`vod_name`、`vod_time`、`vod_play_from`，并返回分类列表 | 列表接口有效 |
+
+证据：`https://api.apibdzy.com/api.php/provide/vod/?ac=list`。本次响应头为 `text/html`，但正文为合法 JSON；应进一步确认目标播放器是否按正文解析而非依赖 Content-Type。
+
+此前检测已确认量子、暴风、索尼列表接口返回非空影视数据。本轮其余普通候选（海外看、快帆、乐视、电影天堂、天涯、卧龙、极速、金蝉、小绵阳等）在当前检测通道中无法取得响应正文或返回 502，均保持“未验证/检测通道不可达”，不判定失效。
+
+### 搜索/详情链路状态
+
+目前新增百度也只确认列表接口。尚未取得搜索响应和详情中的 `vod_play_url`，故普通点播当前累计至少 4 个 API 的列表端点已确认有数据（量子、暴风、索尼、百度）；完整搜索、详情、媒体播放仍未验证。尤酷为历史曾通过但本轮未复核，不计入本轮当前确认数。
+
+本轮只处理普通点播；没有更改源配置、没有删除源、没有修改 master、没有构建 APK。
